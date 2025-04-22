@@ -1,6 +1,6 @@
 workflows:
-  flutter-release:
-    name: Build Flutter App (Android + iOS)
+  android_ios_build:
+    name: Build Android + iOS
     environment:
       flutter: stable
       xcode: latest
@@ -21,4 +21,20 @@ workflows:
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
       - build/app/outputs/bundle/release/app-release.aab
+      - build/ios/iphoneos/*.app
+
+  ios_only_build:
+    name: Build iOS Only
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+
+      - name: Build iOS App
+        script: flutter build ios --release --no-codesign
+
+    artifacts:
       - build/ios/iphoneos/*.app
