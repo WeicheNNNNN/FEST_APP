@@ -38,3 +38,17 @@ workflows:
 
     artifacts:
       - build/ios/iphoneos/*.app
+
+  android_only_build:
+    name: Build Android Only
+    environment:
+      flutter: stable
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+
+      - name: Build Android APK
+        script: flutter build apk --release
+
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
