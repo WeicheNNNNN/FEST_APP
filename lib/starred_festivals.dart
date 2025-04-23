@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fest_app/supabase_service.dart';
 import 'package:fest_app/user_timetable.dart';
-import 'app_drawer.dart';
 
 class StarredFestivalsScreen extends StatefulWidget {
   const StarredFestivalsScreen({super.key});
@@ -69,7 +68,6 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
         ],
       ),
 
-      bottomNavigationBar: AppDrawer(currentIndex: 1),
       body: SafeArea(
         child:
             starredFestivals.isEmpty
@@ -176,19 +174,18 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
           Positioned(
             top: 0,
             right: 0,
-            child: Container(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
-              child: IconButton(
-                padding: EdgeInsets.zero, // ⭐補上，讓 icon 小一點
-                constraints: BoxConstraints(), // ⭐補上，移除預設空間
-                icon: Icon(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent, // 確保透明區域也能點擊
+              onTap: () => _toggleFavorite(festName),
+              child: Container(
+                width: 35, // 👉 增加觸控面積
+                height: 35,
+                alignment: Alignment.center,
+                child: Icon(
                   Icons.star,
                   color: Colors.amber,
-                  size: 20, // ⭐縮小
+                  size: 20, // ⭐ 圖案保持小
                 ),
-                onPressed: () {
-                  _toggleFavorite(festName);
-                },
               ),
             ),
           ),

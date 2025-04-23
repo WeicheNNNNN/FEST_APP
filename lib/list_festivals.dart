@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'supabase_service.dart';
-import 'app_drawer.dart';
+
 import 'user_timetable.dart';
 
 class FestivalListScreen extends StatefulWidget {
@@ -113,8 +113,6 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
           ),
         ],
       ),
-
-      bottomNavigationBar: AppDrawer(currentIndex: 0), // 首頁 = index 0
 
       body: Column(
         children: [
@@ -267,9 +265,10 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
             ),
           ),
           Positioned(
-            top: 8,
-            right: 8,
+            top: 0,
+            right: 0,
             child: GestureDetector(
+              behavior: HitTestBehavior.translucent, // 讓整個容器都能點擊
               onTap: () {
                 setState(() {
                   if (isStarred) {
@@ -281,14 +280,13 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 _saveFavorites();
               },
               child: Container(
-                padding: const EdgeInsets.all(4), // 🔥 統一padding，讓它變小
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                ),
+                width: 48, // 🔺拉大觸控面積
+                height: 48,
+                alignment: Alignment.center, // 圖示保持置中
                 child: Icon(
                   isStarred ? Icons.star : Icons.star_border,
                   color: isStarred ? Colors.amber : Colors.white,
-                  size: 20, // 🔥 icon小一點，跟左邊標籤差不多高
+                  size: 20, // ⭐圖示維持小
                 ),
               ),
             ),

@@ -2,7 +2,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'app_drawer.dart';
+
 import 'organizer.dart';
 
 class CustomOrganizerScreen extends StatefulWidget {
@@ -282,7 +282,6 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: AppDrawer(currentIndex: 3),
 
       body: SafeArea(
         child:

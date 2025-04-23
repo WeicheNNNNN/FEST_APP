@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'list_festivals.dart';
+import 'main.dart';
 
 class UserTimetableScreen extends StatefulWidget {
   final Map<String, dynamic> festival;
@@ -121,19 +122,29 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.home),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
-              await prefs.remove('lastFestival'); // 🔥回首頁的時候記得清除紀錄
-              if (mounted) {
+              await prefs.remove('lastFestival'); // ⭐ 清除自動導入記錄
+
+              if (Navigator.canPop(context)) {
                 Navigator.pushAndRemoveUntil(
                   context,
+                  MaterialPageRoute(
+                    builder: (_) => const MainNavigationScreen(),
+                  ),
+                  (route) => false,
+                );
+              } else {
+                // 沒有上一頁，回首頁
+                Navigator.pushReplacement(
+                  context,
                   MaterialPageRoute(builder: (_) => const FestivalListScreen()),
-                  (Route<dynamic> route) => false,
                 );
               }
             },
           ),
+
           title: Text('${widget.festival['name']} 時間表'),
           centerTitle: true,
           backgroundColor: Color.fromARGB(100, 96, 125, 139),

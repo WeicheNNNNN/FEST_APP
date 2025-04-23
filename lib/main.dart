@@ -4,6 +4,9 @@ import 'starred_festivals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'local_festivals.dart';
 import 'list_festivals.dart';
+import 'organizer.dart';
+import 'custom_organizer.dart';
+import 'user_timetable.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,54 +31,177 @@ class MusicFestApp extends StatelessWidget {
           seedColor: const Color.fromARGB(255, 64, 84, 109),
         ),
       ),
-      home: const LaunchScreen(),
+      home: const MainNavigationScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class LaunchScreen extends StatefulWidget {
-  const LaunchScreen({super.key});
+class MainNavigationScreen extends StatefulWidget {
+  final Map<String, dynamic>? initialTimetableFestival;
+
+  const MainNavigationScreen({
+    super.key,
+    this.initialIndex = 0,
+    this.initialTimetableFestival,
+  });
+  final int initialIndex;
 
   @override
-  State<LaunchScreen> createState() => _LaunchScreenState();
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _LaunchScreenState extends State<LaunchScreen> {
+class _MainNavigationScreenState extends State<MainNavigationScreen>
+    with WidgetsBindingObserver {
+  late final PageController _pageController;
+  late int _currentIndex;
+  bool _unlockedOrganizer = false;
+
+  final List<Widget> _pages = const [
+    FestivalListScreen(),
+    StarredFestivalsScreen(),
+    LocalFestivalsScreen(),
+    CustomOrganizerScreen(),
+    OrganizerHomeScreen(),
+  ];
+
   @override
   void initState() {
     super.initState();
-    _checkLastPage();
-  }
+    WidgetsBinding.instance.addObserver(this);
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: _currentIndex);
 
-  Future<void> _checkLastPage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lastPage = prefs.getString('lastPage') ?? 'home'; // 預設回首頁
-
-    if (!mounted) return;
-
-    if (lastPage == 'starred') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const StarredFestivalsScreen()),
-      );
-    } else if (lastPage == 'local') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LocalFestivalsScreen()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const FestivalListScreen()),
-      );
+    // 若開機指定要顯示某個音樂祭時間表
+    if (widget.initialTimetableFestival != null) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (_) => UserTimetableScreen(
+                  festival: widget.initialTimetableFestival!,
+                ),
+          ),
+        );
+      });
     }
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden) {
+      setState(() => _unlockedOrganizer = false);
+    }
+  }
+
+  void _onTabTapped(int index) async {
+    if (index == 4 && !_unlockedOrganizer) {
+      final success = await _showPasswordDialog();
+      if (!success) return;
+      setState(() => _unlockedOrganizer = true);
+    }
+
+    setState(() => _currentIndex = index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
+  }
+
+  Future<bool> _showPasswordDialog() async {
+    final controller = TextEditingController();
+    bool showError = false;
+
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder:
+              (_) => StatefulBuilder(
+                builder:
+                    (context, setState) => AlertDialog(
+                      title: const Text('輸入主辦密碼'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            controller: controller,
+                            obscureText: true,
+                            decoration: const InputDecoration(labelText: '密碼'),
+                          ),
+                          if (showError)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                '密碼錯誤，請再試一次',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('取消'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            final correct = controller.text == '123';
+                            if (correct) {
+                              Navigator.pop(context, true);
+                            } else {
+                              controller.clear();
+                              setState(() => showError = true);
+                            }
+                          },
+                          child: const Text('確認'),
+                        ),
+                      ],
+                    ),
+              ),
+        ) ??
+        false;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()), // 小loading
+    return Scaffold(
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onTabTapped,
+        type: BottomNavigationBarType.fixed,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首頁'),
+          BottomNavigationBarItem(icon: Icon(Icons.star), label: '已加星號'),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: '自定義清單'),
+          BottomNavigationBarItem(icon: Icon(Icons.edit), label: '自定義模式'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.manage_accounts),
+            label: '主辦模式',
+          ),
+        ],
+      ),
     );
   }
 }

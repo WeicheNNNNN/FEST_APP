@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'app_drawer.dart';
+
 import 'supabase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -336,7 +336,7 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: AppDrawer(currentIndex: 4),
+
       body: SafeArea(
         child:
             festivals.isEmpty
@@ -933,8 +933,29 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                         ),
                                         TextButton(
                                           onPressed: () async {
+                                            final rController =
+                                                TextEditingController();
+                                            final gController =
+                                                TextEditingController();
+                                            final bController =
+                                                TextEditingController();
                                             Color tempColor =
                                                 selectedColor; // 用 selectedColor 當初始顏色
+                                            void updateControllers(
+                                              Color color,
+                                            ) {
+                                              rController.text =
+                                                  color.red.toString();
+                                              gController.text =
+                                                  color.green.toString();
+                                              bController.text =
+                                                  color.blue.toString();
+                                            }
+
+                                            updateControllers(
+                                              tempColor,
+                                            ); // 初始更新
+
                                             final picked = await showDialog<
                                               Color
                                             >(
@@ -955,6 +976,153 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                                                   MainAxisSize
                                                                       .min,
                                                               children: [
+                                                                ColorPicker(
+                                                                  pickerColor:
+                                                                      tempColor,
+                                                                  onColorChanged: (
+                                                                    color,
+                                                                  ) {
+                                                                    tempColor =
+                                                                        color;
+                                                                    updateControllers(
+                                                                      color,
+                                                                    ); // 拖曳時也同步更新欄位
+                                                                    setState(
+                                                                      () {},
+                                                                    );
+                                                                    setStateDialog(
+                                                                      () {},
+                                                                    );
+                                                                  },
+                                                                  enableAlpha:
+                                                                      false,
+                                                                  labelTypes:
+                                                                      [],
+                                                                  pickerAreaHeightPercent:
+                                                                      0.7,
+                                                                ),
+
+                                                                Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child: TextField(
+                                                                        controller:
+                                                                            rController,
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        decoration: const InputDecoration(
+                                                                          labelText:
+                                                                              'R',
+                                                                        ),
+                                                                        onChanged: (
+                                                                          value,
+                                                                        ) {
+                                                                          final r =
+                                                                              int.tryParse(
+                                                                                value,
+                                                                              ) ??
+                                                                              0;
+                                                                          tempColor = tempColor.withRed(
+                                                                            r.clamp(
+                                                                              0,
+                                                                              255,
+                                                                            ),
+                                                                          );
+                                                                          updateControllers(
+                                                                            tempColor,
+                                                                          ); // 保持同步
+                                                                          setState(
+                                                                            () {},
+                                                                          );
+                                                                          setStateDialog(
+                                                                            () {},
+                                                                          );
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 8,
+                                                                    ),
+                                                                    Expanded(
+                                                                      child: TextField(
+                                                                        controller:
+                                                                            gController,
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        decoration: const InputDecoration(
+                                                                          labelText:
+                                                                              'G',
+                                                                        ),
+                                                                        onChanged: (
+                                                                          value,
+                                                                        ) {
+                                                                          final g =
+                                                                              int.tryParse(
+                                                                                value,
+                                                                              ) ??
+                                                                              0;
+                                                                          tempColor = tempColor.withGreen(
+                                                                            g.clamp(
+                                                                              0,
+                                                                              255,
+                                                                            ),
+                                                                          );
+                                                                          updateControllers(
+                                                                            tempColor,
+                                                                          );
+                                                                          setState(
+                                                                            () {},
+                                                                          );
+                                                                          setStateDialog(
+                                                                            () {},
+                                                                          );
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 8,
+                                                                    ),
+                                                                    Expanded(
+                                                                      child: TextField(
+                                                                        controller:
+                                                                            bController,
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        decoration: const InputDecoration(
+                                                                          labelText:
+                                                                              'B',
+                                                                        ),
+                                                                        onChanged: (
+                                                                          value,
+                                                                        ) {
+                                                                          final b =
+                                                                              int.tryParse(
+                                                                                value,
+                                                                              ) ??
+                                                                              0;
+                                                                          tempColor = tempColor.withBlue(
+                                                                            b.clamp(
+                                                                              0,
+                                                                              255,
+                                                                            ),
+                                                                          );
+                                                                          updateControllers(
+                                                                            tempColor,
+                                                                          );
+                                                                          setState(
+                                                                            () {},
+                                                                          );
+                                                                          setStateDialog(
+                                                                            () {},
+                                                                          );
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 16,
+                                                                ),
                                                                 Wrap(
                                                                   spacing: 8,
                                                                   runSpacing: 8,
@@ -968,6 +1136,9 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                                                             () =>
                                                                                 tempColor =
                                                                                     color,
+                                                                          );
+                                                                          updateControllers(
+                                                                            color,
                                                                           );
                                                                           setStateDialog(
                                                                             () {},
@@ -988,33 +1159,6 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                                                       ),
                                                                     ),
                                                                   ],
-                                                                ),
-                                                                const SizedBox(
-                                                                  height: 16,
-                                                                ),
-                                                                ColorPicker(
-                                                                  pickerColor:
-                                                                      tempColor,
-                                                                  onColorChanged: (
-                                                                    color,
-                                                                  ) {
-                                                                    setState(
-                                                                      () =>
-                                                                          tempColor =
-                                                                              color,
-                                                                    );
-                                                                    setStateDialog(
-                                                                      () {},
-                                                                    );
-                                                                  },
-                                                                  enableAlpha:
-                                                                      false,
-                                                                  labelTypes: const [
-                                                                    ColorLabelType
-                                                                        .rgb,
-                                                                  ],
-                                                                  pickerAreaHeightPercent:
-                                                                      0.7,
                                                                 ),
                                                               ],
                                                             ),
@@ -1206,8 +1350,29 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                                         ),
                                                         TextButton(
                                                           onPressed: () async {
+                                                            final rController =
+                                                                TextEditingController();
+                                                            final gController =
+                                                                TextEditingController();
+                                                            final bController =
+                                                                TextEditingController();
                                                             Color tempColor =
                                                                 selectedColor; // 用 selectedColor 當初始顏色
+                                                            void
+                                                            updateControllers(
+                                                              Color color,
+                                                            ) {
+                                                              rController.text =
+                                                                  color.red
+                                                                      .toString();
+                                                              gController.text =
+                                                                  color.green
+                                                                      .toString();
+                                                              bController.text =
+                                                                  color.blue
+                                                                      .toString();
+                                                            }
+
                                                             final picked = await showDialog<
                                                               Color
                                                             >(
@@ -1229,6 +1394,156 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                                                               mainAxisSize:
                                                                                   MainAxisSize.min,
                                                                               children: [
+                                                                                ColorPicker(
+                                                                                  pickerColor:
+                                                                                      tempColor,
+                                                                                  onColorChanged: (
+                                                                                    color,
+                                                                                  ) {
+                                                                                    tempColor =
+                                                                                        color;
+                                                                                    updateControllers(
+                                                                                      color,
+                                                                                    ); // 拖曳時同步 RGB 欄位
+                                                                                    setState(
+                                                                                      () {},
+                                                                                    );
+                                                                                    setStateDialog(
+                                                                                      () {},
+                                                                                    );
+                                                                                  },
+                                                                                  enableAlpha:
+                                                                                      false,
+                                                                                  labelTypes:
+                                                                                      [],
+                                                                                  pickerAreaHeightPercent:
+                                                                                      0.7,
+                                                                                ),
+
+                                                                                Row(
+                                                                                  children: [
+                                                                                    Expanded(
+                                                                                      child: TextField(
+                                                                                        controller:
+                                                                                            rController,
+                                                                                        keyboardType:
+                                                                                            TextInputType.number,
+                                                                                        decoration: const InputDecoration(
+                                                                                          labelText:
+                                                                                              'R',
+                                                                                        ),
+                                                                                        onChanged: (
+                                                                                          value,
+                                                                                        ) {
+                                                                                          final r =
+                                                                                              int.tryParse(
+                                                                                                value,
+                                                                                              ) ??
+                                                                                              0;
+                                                                                          tempColor = tempColor.withRed(
+                                                                                            r.clamp(
+                                                                                              0,
+                                                                                              255,
+                                                                                            ),
+                                                                                          );
+                                                                                          updateControllers(
+                                                                                            tempColor,
+                                                                                          ); // 保持同步
+                                                                                          setState(
+                                                                                            () {},
+                                                                                          );
+                                                                                          setStateDialog(
+                                                                                            () {},
+                                                                                          );
+                                                                                        },
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(
+                                                                                      width:
+                                                                                          8,
+                                                                                    ),
+                                                                                    Expanded(
+                                                                                      child: TextField(
+                                                                                        controller:
+                                                                                            gController,
+                                                                                        keyboardType:
+                                                                                            TextInputType.number,
+                                                                                        decoration: const InputDecoration(
+                                                                                          labelText:
+                                                                                              'G',
+                                                                                        ),
+                                                                                        onChanged: (
+                                                                                          value,
+                                                                                        ) {
+                                                                                          final g =
+                                                                                              int.tryParse(
+                                                                                                value,
+                                                                                              ) ??
+                                                                                              0;
+                                                                                          tempColor = tempColor.withGreen(
+                                                                                            g.clamp(
+                                                                                              0,
+                                                                                              255,
+                                                                                            ),
+                                                                                          );
+                                                                                          updateControllers(
+                                                                                            tempColor,
+                                                                                          );
+                                                                                          setState(
+                                                                                            () {},
+                                                                                          );
+                                                                                          setStateDialog(
+                                                                                            () {},
+                                                                                          );
+                                                                                        },
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(
+                                                                                      width:
+                                                                                          8,
+                                                                                    ),
+                                                                                    Expanded(
+                                                                                      child: TextField(
+                                                                                        controller:
+                                                                                            bController,
+                                                                                        keyboardType:
+                                                                                            TextInputType.number,
+                                                                                        decoration: const InputDecoration(
+                                                                                          labelText:
+                                                                                              'B',
+                                                                                        ),
+                                                                                        onChanged: (
+                                                                                          value,
+                                                                                        ) {
+                                                                                          final b =
+                                                                                              int.tryParse(
+                                                                                                value,
+                                                                                              ) ??
+                                                                                              0;
+                                                                                          tempColor = tempColor.withBlue(
+                                                                                            b.clamp(
+                                                                                              0,
+                                                                                              255,
+                                                                                            ),
+                                                                                          );
+                                                                                          updateControllers(
+                                                                                            tempColor,
+                                                                                          );
+                                                                                          setState(
+                                                                                            () {},
+                                                                                          );
+                                                                                          setStateDialog(
+                                                                                            () {},
+                                                                                          );
+                                                                                        },
+                                                                                      ),
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                                const SizedBox(
+                                                                                  height:
+                                                                                      16,
+                                                                                ),
                                                                                 Wrap(
                                                                                   spacing:
                                                                                       8,
@@ -1244,6 +1559,9 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                                                                             () =>
                                                                                                 tempColor =
                                                                                                     color,
+                                                                                          );
+                                                                                          updateControllers(
+                                                                                            color,
                                                                                           );
                                                                                           setStateDialog(
                                                                                             () {},
@@ -1264,33 +1582,6 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
                                                                                       ),
                                                                                     ),
                                                                                   ],
-                                                                                ),
-                                                                                const SizedBox(
-                                                                                  height:
-                                                                                      16,
-                                                                                ),
-                                                                                ColorPicker(
-                                                                                  pickerColor:
-                                                                                      tempColor,
-                                                                                  onColorChanged: (
-                                                                                    color,
-                                                                                  ) {
-                                                                                    setState(
-                                                                                      () =>
-                                                                                          tempColor =
-                                                                                              color,
-                                                                                    );
-                                                                                    setStateDialog(
-                                                                                      () {},
-                                                                                    );
-                                                                                  },
-                                                                                  enableAlpha:
-                                                                                      false,
-                                                                                  labelTypes: const [
-                                                                                    ColorLabelType.rgb,
-                                                                                  ],
-                                                                                  pickerAreaHeightPercent:
-                                                                                      0.7,
                                                                                 ),
                                                                               ],
                                                                             ),

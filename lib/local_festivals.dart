@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user_timetable.dart';
-import 'app_drawer.dart';
 
 class LocalFestivalsScreen extends StatefulWidget {
   const LocalFestivalsScreen({super.key});
@@ -53,7 +52,7 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: AppDrawer(currentIndex: 2),
+
       body: SafeArea(
         child:
             localFestivals.isEmpty
