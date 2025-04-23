@@ -11,4 +11,3 @@ flutter:
       android:
         package: fake.signin
         pluginClass: FakeSignInPlugin
-
