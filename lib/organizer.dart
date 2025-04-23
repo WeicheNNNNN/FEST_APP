@@ -474,12 +474,13 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                                                       2030,
                                                                     ),
                                                               );
-                                                          if (picked != null)
+                                                          if (picked != null) {
                                                             setState(
                                                               () =>
                                                                   startDate =
                                                                       picked,
                                                             );
+                                                          }
                                                         },
                                                         child: Text(
                                                           startDate == null
@@ -509,12 +510,13 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                                                       2030,
                                                                     ),
                                                               );
-                                                          if (picked != null)
+                                                          if (picked != null) {
                                                             setState(
                                                               () =>
                                                                   endDate =
                                                                       picked,
                                                             );
+                                                          }
                                                         },
                                                         child: Text(
                                                           endDate == null
@@ -537,12 +539,13 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                                                     .gallery,
                                                             imageQuality: 80,
                                                           );
-                                                      if (picked != null)
+                                                      if (picked != null) {
                                                         setState(
                                                           () =>
                                                               pickedImage =
                                                                   picked,
                                                         );
+                                                      }
                                                     },
                                                   ),
                                                   if (pickedImage != null)

@@ -182,7 +182,7 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                   ),
                                 ),
                                 // ⭐額外補一個空白半格
-                                Container(
+                                SizedBox(
                                   width: timeWidth,
                                   height: cellHeight * 0.5,
                                 ),
