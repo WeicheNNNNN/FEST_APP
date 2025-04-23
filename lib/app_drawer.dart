@@ -1,166 +1,112 @@
 import 'package:flutter/material.dart';
-import 'organizer.dart';
-import 'custom_organizer.dart';
-import 'starred_festivals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'local_festivals.dart';
 import 'list_festivals.dart';
+import 'starred_festivals.dart';
+import 'local_festivals.dart';
+import 'custom_organizer.dart';
+import 'organizer.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  final int currentIndex;
+  const AppDrawer({super.key, required this.currentIndex});
+
+  void _navigate(BuildContext context, int index) async {
+    Widget target;
+    String? lastPage;
+    switch (index) {
+      case 0:
+        target = const FestivalListScreen();
+        lastPage = 'home';
+        break;
+      case 1:
+        target = const StarredFestivalsScreen();
+        lastPage = 'starred';
+        break;
+      case 2:
+        target = const LocalFestivalsScreen();
+        lastPage = 'local';
+        break;
+      case 3:
+        target = const CustomOrganizerScreen();
+        break;
+      case 4:
+        _showPasswordDialog(context);
+        return;
+      default:
+        return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    if (lastPage != null) {
+      await prefs.setString('lastPage', lastPage);
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => target),
+      (route) => false,
+    );
+  }
+
+  void _showPasswordDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('輸入主辦密碼'),
+            content: TextField(
+              controller: controller,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: '密碼'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('取消'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (controller.text == '123') {
+                    Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const OrganizerHomeScreen(),
+                      ),
+                      (route) => false,
+                    );
+                  }
+                },
+                child: const Text('確認'),
+              ),
+            ],
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Color.fromARGB(100, 96, 125, 139)),
-            child: Text(
-              '功能選單',
-              style: TextStyle(color: Colors.black, fontSize: 24),
-            ),
-          ),
-          // --- 上半部：使用者常用功能 ---
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('首頁'),
-            onTap: () async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('lastPage', 'home');
-              Navigator.pop(context);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const FestivalListScreen()),
-                (Route<dynamic> route) => false,
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.star),
-            title: const Text('已加星號'),
-            onTap: () async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('lastPage', 'starred');
-              Navigator.pop(context);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const StarredFestivalsScreen(),
-                ),
-                (Route<dynamic> route) => false,
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.list_alt),
-            title: const Text('自定義清單'),
-            onTap: () async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('lastPage', 'local');
-              Navigator.pop(context);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LocalFestivalsScreen()),
-                (Route<dynamic> route) => false,
-              );
-            },
-          ),
-          const Divider(), // ⭐ 分隔線
-          // --- 下半部：管理功能 ---
-          ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('自定義模式'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CustomOrganizerScreen(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.manage_accounts),
-            title: const Text('主辦模式'),
-            onTap: () async {
-              final TextEditingController passwordController =
-                  TextEditingController();
-              String? errorText;
-
-              await showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (dialogContext) {
-                  return StatefulBuilder(
-                    builder: (context, setState) {
-                      return AlertDialog(
-                        title: const Text('輸入密碼'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextField(
-                              controller: passwordController,
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                labelText: '密碼',
-                                errorText: errorText,
-                              ),
-                            ),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(
-                                dialogContext,
-                                rootNavigator: true,
-                              ).pop();
-                            },
-                            child: const Text('取消'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              final password = passwordController.text;
-                              if (password == '123') {
-                                Navigator.of(
-                                  dialogContext,
-                                  rootNavigator: true,
-                                ).pop();
-                                Navigator.pop(context);
-                                Future.delayed(
-                                  const Duration(milliseconds: 100),
-                                  () {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (_) => const OrganizerHomeScreen(),
-                                      ),
-                                    );
-                                  },
-                                );
-                              } else {
-                                setState(() {
-                                  errorText = '密碼錯誤！';
-                                  passwordController.clear();
-                                });
-                              }
-                            },
-                            child: const Text('確認'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      currentIndex: currentIndex,
+      selectedFontSize: 12,
+      unselectedFontSize: 12,
+      onTap: (index) {
+        if (index != currentIndex) {
+          _navigate(context, index);
+        }
+      },
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: '首頁'),
+        BottomNavigationBarItem(icon: Icon(Icons.star), label: '已加星號'),
+        BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: '自定義清單'),
+        BottomNavigationBarItem(icon: Icon(Icons.edit), label: '自定義模式'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.manage_accounts),
+          label: '主辦模式',
+        ),
+      ],
     );
   }
 }

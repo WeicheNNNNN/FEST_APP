@@ -53,33 +53,35 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
           ),
         ],
       ),
-      drawer: const AppDrawer(),
-      body:
-          localFestivals.isEmpty
-              ? const Center(child: Text('尚未建立任何自定義音樂祭'))
-              : isGridView
-              ? GridView.builder(
-                padding: const EdgeInsets.all(12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+      bottomNavigationBar: AppDrawer(currentIndex: 2),
+      body: SafeArea(
+        child:
+            localFestivals.isEmpty
+                ? const Center(child: Text('尚未建立任何自定義音樂祭'))
+                : isGridView
+                ? GridView.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: localFestivals.length,
+                  itemBuilder: (context, index) {
+                    final fest = localFestivals[index];
+                    return _buildFestivalTile(fest);
+                  },
+                )
+                : ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: localFestivals.length,
+                  itemBuilder: (context, index) {
+                    final fest = localFestivals[index];
+                    return _buildFestivalTile(fest);
+                  },
                 ),
-                itemCount: localFestivals.length,
-                itemBuilder: (context, index) {
-                  final fest = localFestivals[index];
-                  return _buildFestivalTile(fest);
-                },
-              )
-              : ListView.builder(
-                padding: const EdgeInsets.all(12),
-                itemCount: localFestivals.length,
-                itemBuilder: (context, index) {
-                  final fest = localFestivals[index];
-                  return _buildFestivalTile(fest);
-                },
-              ),
+      ),
     );
   }
 

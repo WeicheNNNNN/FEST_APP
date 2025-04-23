@@ -282,296 +282,311 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
           ),
         ],
       ),
-      drawer: const AppDrawer(),
+      bottomNavigationBar: AppDrawer(currentIndex: 3),
 
-      body:
-          festivals.isEmpty
-              ? const Center(child: Text('尚未建立任何音樂祭'))
-              : ListView.builder(
-                itemCount: festivals.length,
-                itemBuilder: (context, index) {
-                  final festival = festivals[index];
-                  return Card(
-                    margin: const EdgeInsets.all(12),
-                    child: ListTile(
-                      title: Text(festival['name'] ?? ''),
-                      subtitle: Text(
-                        '${festival['city']}｜${festival['start']} ~ ${festival['end']}',
-                      ),
-                      onTap: () => _openFestivalDetail(index),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () async {
-                              final nameController = TextEditingController(
-                                text: festival['name'],
-                              );
-                              DateTime? start = DateTime.tryParse(
-                                festival['start'],
-                              );
-                              DateTime? end = DateTime.tryParse(
-                                festival['end'],
-                              );
-                              bool isPaid = festival['isPaid'] ?? false; // ⭐ 這行
-                              String city = festival['city'] ?? '';
+      body: SafeArea(
+        child:
+            festivals.isEmpty
+                ? const Center(child: Text('尚未建立任何音樂祭'))
+                : ListView.builder(
+                  itemCount: festivals.length,
+                  itemBuilder: (context, index) {
+                    final festival = festivals[index];
+                    return Card(
+                      margin: const EdgeInsets.all(12),
+                      child: ListTile(
+                        title: Text(festival['name'] ?? ''),
+                        subtitle: Text(
+                          '${festival['city']}｜${festival['start']} ~ ${festival['end']}',
+                        ),
+                        onTap: () => _openFestivalDetail(index),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () async {
+                                final nameController = TextEditingController(
+                                  text: festival['name'],
+                                );
+                                DateTime? start = DateTime.tryParse(
+                                  festival['start'],
+                                );
+                                DateTime? end = DateTime.tryParse(
+                                  festival['end'],
+                                );
+                                bool isPaid =
+                                    festival['isPaid'] ?? false; // ⭐ 這行
+                                String city = festival['city'] ?? '';
 
-                              final updated = await showDialog<
-                                Map<String, dynamic>
-                              >(
-                                context: context,
-                                builder:
-                                    (_) => StatefulBuilder(
-                                      builder:
-                                          (context, setState) => AlertDialog(
-                                            title: const Text('編輯音樂祭'),
-                                            content: SingleChildScrollView(
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  TextField(
-                                                    controller: nameController,
-                                                    decoration:
-                                                        const InputDecoration(
-                                                          labelText: '音樂祭名稱',
-                                                        ),
-                                                  ),
-                                                  DropdownButtonFormField<
-                                                    String
-                                                  >(
-                                                    decoration:
-                                                        const InputDecoration(
-                                                          labelText: '縣市',
-                                                        ),
-                                                    value:
-                                                        city.isEmpty
-                                                            ? null
-                                                            : city,
-                                                    items:
-                                                        [
-                                                              '基隆市',
-                                                              '台北市',
-                                                              '新北市',
-                                                              '桃園市',
-                                                              '新竹市',
-                                                              '新竹縣',
-                                                              '苗栗縣',
-                                                              '台中市',
-                                                              '彰化縣',
-                                                              '南投縣',
-                                                              '雲林縣',
-                                                              '嘉義市',
-                                                              '嘉義縣',
-                                                              '台南市',
-                                                              '高雄市',
-                                                              '屏東縣',
-                                                              '台東縣',
-                                                              '花蓮縣',
-                                                              '宜蘭縣',
-                                                              '澎湖縣',
-                                                            ]
-                                                            .map(
-                                                              (c) =>
-                                                                  DropdownMenuItem(
-                                                                    value: c,
-                                                                    child: Text(
-                                                                      c,
+                                final updated = await showDialog<
+                                  Map<String, dynamic>
+                                >(
+                                  context: context,
+                                  builder:
+                                      (_) => StatefulBuilder(
+                                        builder:
+                                            (context, setState) => AlertDialog(
+                                              title: const Text('編輯音樂祭'),
+                                              content: SingleChildScrollView(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    TextField(
+                                                      controller:
+                                                          nameController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                            labelText: '音樂祭名稱',
+                                                          ),
+                                                    ),
+                                                    DropdownButtonFormField<
+                                                      String
+                                                    >(
+                                                      decoration:
+                                                          const InputDecoration(
+                                                            labelText: '縣市',
+                                                          ),
+                                                      value:
+                                                          city.isEmpty
+                                                              ? null
+                                                              : city,
+                                                      items:
+                                                          [
+                                                                '基隆市',
+                                                                '台北市',
+                                                                '新北市',
+                                                                '桃園市',
+                                                                '新竹市',
+                                                                '新竹縣',
+                                                                '苗栗縣',
+                                                                '台中市',
+                                                                '彰化縣',
+                                                                '南投縣',
+                                                                '雲林縣',
+                                                                '嘉義市',
+                                                                '嘉義縣',
+                                                                '台南市',
+                                                                '高雄市',
+                                                                '屏東縣',
+                                                                '台東縣',
+                                                                '花蓮縣',
+                                                                '宜蘭縣',
+                                                                '澎湖縣',
+                                                              ]
+                                                              .map(
+                                                                (c) =>
+                                                                    DropdownMenuItem(
+                                                                      value: c,
+                                                                      child:
+                                                                          Text(
+                                                                            c,
+                                                                          ),
                                                                     ),
-                                                                  ),
-                                                            )
-                                                            .toList(),
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        city = value ?? '';
+                                                              )
+                                                              .toList(),
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          city = value ?? '';
+                                                        });
+                                                      },
+                                                    ),
+
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Text('是否為付費活動'),
+                                                        Switch(
+                                                          value: isPaid,
+                                                          onChanged: (value) {
+                                                            setState(() {
+                                                              isPaid = value;
+                                                            });
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+
+                                                    Row(
+                                                      children: [
+                                                        const Text('起始日：'),
+                                                        TextButton(
+                                                          onPressed: () async {
+                                                            final picked =
+                                                                await showDatePicker(
+                                                                  context:
+                                                                      context,
+                                                                  initialDate:
+                                                                      start ??
+                                                                      DateTime.now(),
+                                                                  firstDate:
+                                                                      DateTime(
+                                                                        2020,
+                                                                      ),
+                                                                  lastDate:
+                                                                      DateTime(
+                                                                        2030,
+                                                                      ),
+                                                                );
+                                                            if (picked !=
+                                                                null) {
+                                                              setState(
+                                                                () =>
+                                                                    start =
+                                                                        picked,
+                                                              );
+                                                            }
+                                                          },
+                                                          child: Text(
+                                                            start == null
+                                                                ? '選擇'
+                                                                : '${start!.year}-${start!.month.toString().padLeft(2, '0')}-${start!.day.toString().padLeft(2, '0')}',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        const Text('結束日：'),
+                                                        TextButton(
+                                                          onPressed: () async {
+                                                            final picked =
+                                                                await showDatePicker(
+                                                                  context:
+                                                                      context,
+                                                                  initialDate:
+                                                                      end ??
+                                                                      DateTime.now(),
+                                                                  firstDate:
+                                                                      DateTime(
+                                                                        2020,
+                                                                      ),
+                                                                  lastDate:
+                                                                      DateTime(
+                                                                        2030,
+                                                                      ),
+                                                                );
+                                                            if (picked !=
+                                                                null) {
+                                                              setState(
+                                                                () =>
+                                                                    end =
+                                                                        picked,
+                                                              );
+                                                            }
+                                                          },
+                                                          child: Text(
+                                                            end == null
+                                                                ? '選擇'
+                                                                : '${end!.year}-${end!.month.toString().padLeft(2, '0')}-${end!.day.toString().padLeft(2, '0')}',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                      ),
+                                                  child: const Text('取消'),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    if (nameController
+                                                            .text
+                                                            .isNotEmpty &&
+                                                        start != null &&
+                                                        end != null) {
+                                                      Navigator.pop(context, {
+                                                        'name':
+                                                            nameController.text,
+                                                        'start':
+                                                            '${start!.year}-${start!.month.toString().padLeft(2, '0')}-${start!.day.toString().padLeft(2, '0')}',
+                                                        'end':
+                                                            '${end!.year}-${end!.month.toString().padLeft(2, '0')}-${end!.day.toString().padLeft(2, '0')}',
+                                                        'stages':
+                                                            festival['stages'] ??
+                                                            [],
+                                                        'city': city, // ⭐補這個
+                                                        'isPaid':
+                                                            isPaid, // ⭐補這個
                                                       });
-                                                    },
-                                                  ),
-
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      const Text('是否為付費活動'),
-                                                      Switch(
-                                                        value: isPaid,
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            isPaid = value;
-                                                          });
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
-
-                                                  Row(
-                                                    children: [
-                                                      const Text('起始日：'),
-                                                      TextButton(
-                                                        onPressed: () async {
-                                                          final picked =
-                                                              await showDatePicker(
-                                                                context:
-                                                                    context,
-                                                                initialDate:
-                                                                    start ??
-                                                                    DateTime.now(),
-                                                                firstDate:
-                                                                    DateTime(
-                                                                      2020,
-                                                                    ),
-                                                                lastDate:
-                                                                    DateTime(
-                                                                      2030,
-                                                                    ),
-                                                              );
-                                                          if (picked != null) {
-                                                            setState(
-                                                              () =>
-                                                                  start =
-                                                                      picked,
-                                                            );
-                                                          }
-                                                        },
-                                                        child: Text(
-                                                          start == null
-                                                              ? '選擇'
-                                                              : '${start!.year}-${start!.month.toString().padLeft(2, '0')}-${start!.day.toString().padLeft(2, '0')}',
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      const Text('結束日：'),
-                                                      TextButton(
-                                                        onPressed: () async {
-                                                          final picked =
-                                                              await showDatePicker(
-                                                                context:
-                                                                    context,
-                                                                initialDate:
-                                                                    end ??
-                                                                    DateTime.now(),
-                                                                firstDate:
-                                                                    DateTime(
-                                                                      2020,
-                                                                    ),
-                                                                lastDate:
-                                                                    DateTime(
-                                                                      2030,
-                                                                    ),
-                                                              );
-                                                          if (picked != null) {
-                                                            setState(
-                                                              () =>
-                                                                  end = picked,
-                                                            );
-                                                          }
-                                                        },
-                                                        child: Text(
-                                                          end == null
-                                                              ? '選擇'
-                                                              : '${end!.year}-${end!.month.toString().padLeft(2, '0')}-${end!.day.toString().padLeft(2, '0')}',
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
+                                                    }
+                                                  },
+                                                  child: const Text('儲存'),
+                                                ),
+                                              ],
                                             ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed:
-                                                    () =>
-                                                        Navigator.pop(context),
-                                                child: const Text('取消'),
-                                              ),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  if (nameController
-                                                          .text
-                                                          .isNotEmpty &&
-                                                      start != null &&
-                                                      end != null) {
-                                                    Navigator.pop(context, {
-                                                      'name':
-                                                          nameController.text,
-                                                      'start':
-                                                          '${start!.year}-${start!.month.toString().padLeft(2, '0')}-${start!.day.toString().padLeft(2, '0')}',
-                                                      'end':
-                                                          '${end!.year}-${end!.month.toString().padLeft(2, '0')}-${end!.day.toString().padLeft(2, '0')}',
-                                                      'stages':
-                                                          festival['stages'] ??
-                                                          [],
-                                                      'city': city, // ⭐補這個
-                                                      'isPaid': isPaid, // ⭐補這個
-                                                    });
-                                                  }
-                                                },
-                                                child: const Text('儲存'),
-                                              ),
-                                            ],
-                                          ),
-                                    ),
-                              );
-
-                              if (updated != null) {
-                                final updatedFestival =
-                                    {
-                                      ...festivals[index],
-                                      ...updated,
-                                      'id': festivals[index]['id'], // 保留原本的id
-                                    }.cast<String, dynamic>();
-
-                                setState(() {
-                                  festivals[index] = updatedFestival;
-                                });
-
-                                _saveFestivals(); // 再存回SharedPreferences
-                              }
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () async {
-                              final confirmed = await showDialog<bool>(
-                                context: context,
-                                builder:
-                                    (_) => AlertDialog(
-                                      title: const Text('刪除確認'),
-                                      content: Text(
-                                        '確定要刪除「${festival['name']}」嗎？',
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, false),
-                                          child: const Text('取消'),
+                                );
+
+                                if (updated != null) {
+                                  final updatedFestival =
+                                      {
+                                        ...festivals[index],
+                                        ...updated,
+                                        'id': festivals[index]['id'], // 保留原本的id
+                                      }.cast<String, dynamic>();
+
+                                  setState(() {
+                                    festivals[index] = updatedFestival;
+                                  });
+
+                                  _saveFestivals(); // 再存回SharedPreferences
+                                }
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder:
+                                      (_) => AlertDialog(
+                                        title: const Text('刪除確認'),
+                                        content: Text(
+                                          '確定要刪除「${festival['name']}」嗎？',
                                         ),
-                                        ElevatedButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, true),
-                                          child: const Text('刪除'),
-                                        ),
-                                      ],
-                                    ),
-                              );
-                              if (confirmed == true) {
-                                setState(() => festivals.removeAt(index));
-                                _saveFestivals();
-                              }
-                            },
-                          ),
-                        ],
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  false,
+                                                ),
+                                            child: const Text('取消'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  true,
+                                                ),
+                                            child: const Text('刪除'),
+                                          ),
+                                        ],
+                                      ),
+                                );
+                                if (confirmed == true) {
+                                  setState(() => festivals.removeAt(index));
+                                  _saveFestivals();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+      ),
     );
   }
 }

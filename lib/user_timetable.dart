@@ -184,7 +184,7 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                 // ⭐額外補一個空白半格
                                 SizedBox(
                                   width: timeWidth,
-                                  height: cellHeight * 0.5,
+                                  height: cellHeight * 4,
                                 ),
                               ],
                             ),
@@ -432,7 +432,13 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                                         top: cellHeight * 0.5,
                                                       ),
                                                   child: Column(
-                                                    children: stageCells,
+                                                    children: [
+                                                      ...stageCells,
+                                                      // ⭐ 加一段留白區域
+                                                      const SizedBox(
+                                                        height: 100,
+                                                      ), // 這邊你可以調整高度
+                                                    ],
                                                   ),
                                                 );
                                               }).toList(),

@@ -26,6 +26,7 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
     final prefs = await SharedPreferences.getInstance();
     final starList = prefs.getStringList('favorite_festivals') ?? [];
     final allFestivals = await SupabaseService().getFestivals();
+    if (!mounted) return;
     setState(() {
       starredFestivals =
           allFestivals
@@ -68,33 +69,35 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
         ],
       ),
 
-      drawer: const AppDrawer(),
-      body:
-          starredFestivals.isEmpty
-              ? const Center(child: Text('目前沒有加星號的音樂祭'))
-              : isGridView
-              ? GridView.builder(
-                padding: const EdgeInsets.all(12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+      bottomNavigationBar: AppDrawer(currentIndex: 1),
+      body: SafeArea(
+        child:
+            starredFestivals.isEmpty
+                ? const Center(child: Text('目前沒有加星號的音樂祭'))
+                : isGridView
+                ? GridView.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: starredFestivals.length,
+                  itemBuilder: (context, index) {
+                    final fest = starredFestivals[index];
+                    return _buildFestivalTile(fest);
+                  },
+                )
+                : ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: starredFestivals.length,
+                  itemBuilder: (context, index) {
+                    final fest = starredFestivals[index];
+                    return _buildFestivalTile(fest);
+                  },
                 ),
-                itemCount: starredFestivals.length,
-                itemBuilder: (context, index) {
-                  final fest = starredFestivals[index];
-                  return _buildFestivalTile(fest);
-                },
-              )
-              : ListView.builder(
-                padding: const EdgeInsets.all(12),
-                itemCount: starredFestivals.length,
-                itemBuilder: (context, index) {
-                  final fest = starredFestivals[index];
-                  return _buildFestivalTile(fest);
-                },
-              ),
+      ),
     );
   }
 

@@ -114,7 +114,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
         ],
       ),
 
-      drawer: const AppDrawer(),
+      bottomNavigationBar: AppDrawer(currentIndex: 0), // 首頁 = index 0
 
       body: Column(
         children: [
@@ -153,7 +153,8 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                       ? const Center(child: Text('找不到符合的音樂祭'))
                       : isGridView
                       ? GridView.builder(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
+
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
@@ -168,7 +169,13 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                         },
                       )
                       : ListView.builder(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.fromLTRB(
+                          12,
+                          12,
+                          12,
+                          100,
+                        ), // ⭐ 底部多 100px 空間
+
                         itemCount: filteredFestivals.length,
                         itemBuilder: (context, index) {
                           final fest = filteredFestivals[index];
@@ -196,6 +203,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
             onTap: () async {
               final prefs = await SharedPreferences.getInstance();
               prefs.setString('lastFestival', jsonEncode(fest));
+              if (!context.mounted) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -203,6 +211,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 ),
               );
             },
+
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -217,7 +226,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withAlpha((0.4 * 255).round()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
