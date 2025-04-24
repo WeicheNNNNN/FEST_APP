@@ -113,7 +113,11 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => UserTimetableScreen(festival: fest),
+                  builder:
+                      (_) => UserTimetableScreen(
+                        festival: fest,
+                        sourcePage: 'starred',
+                      ),
                 ),
               );
             },
@@ -178,8 +182,8 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
               behavior: HitTestBehavior.translucent, // 確保透明區域也能點擊
               onTap: () => _toggleFavorite(festName),
               child: Container(
-                width: 35, // 👉 增加觸控面積
-                height: 35,
+                width: 40, // 👉 增加觸控面積
+                height: 40,
                 alignment: Alignment.center,
                 child: Icon(
                   Icons.star,
@@ -195,6 +199,7 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
       return Container(
         margin: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
+          color: Colors.white.withAlpha(200),
           border: Border.all(color: Colors.grey.shade400),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -241,7 +246,11 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => UserTimetableScreen(festival: fest),
+                builder:
+                    (_) => UserTimetableScreen(
+                      festival: fest,
+                      sourcePage: 'starred',
+                    ),
               ),
             );
           },

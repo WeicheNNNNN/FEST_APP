@@ -3,10 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'list_festivals.dart';
 import 'main.dart';
+import 'starred_festivals.dart';
+import 'local_festivals.dart';
 
 class UserTimetableScreen extends StatefulWidget {
   final Map<String, dynamic> festival;
-  const UserTimetableScreen({super.key, required this.festival});
+  final String? sourcePage; // 新增來源頁面參數
+
+  const UserTimetableScreen({
+    super.key,
+    required this.festival,
+    this.sourcePage,
+  });
 
   @override
   State<UserTimetableScreen> createState() => _UserTimetableScreenState();
@@ -125,23 +133,29 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
-              await prefs.remove('lastFestival'); // ⭐ 清除自動導入記錄
+              await prefs.remove('lastFestival'); // 清除記錄
 
-              if (Navigator.canPop(context)) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const MainNavigationScreen(),
-                  ),
-                  (route) => false,
-                );
-              } else {
-                // 沒有上一頁，回首頁
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const FestivalListScreen()),
-                );
+              int initialIndex = 0;
+              switch (widget.sourcePage) {
+                case 'starred':
+                  initialIndex = 1;
+                  break;
+                case 'local':
+                  initialIndex = 2;
+                  break;
+                case 'list':
+                default:
+                  initialIndex = 0;
               }
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => MainNavigationScreen(initialIndex: initialIndex),
+                ),
+                (route) => false,
+              );
             },
           ),
 

@@ -275,12 +275,17 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
         title: const Text('自定義模式'),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(200, 96, 125, 139),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showAddFestivalDialog,
-          ),
-        ],
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(
+          bottom: 70.0,
+          right: 20.0,
+        ), // ⬅️ 避開 BottomNavigationBar
+        child: FloatingActionButton(
+          onPressed: _showAddFestivalDialog, // ← 每頁這個可以換成自己頁面要用的
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          child: const Icon(Icons.add),
+        ),
       ),
 
       body: SafeArea(

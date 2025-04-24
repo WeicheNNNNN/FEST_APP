@@ -18,6 +18,8 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
   bool isGridView = true;
   Set<String> favoriteFestivals = {}; // 存收藏的音樂祭名稱
   bool showFavoritesOnly = false; // ⭐是否只看收藏
+  bool showSearchBar = false;
+
   late TextEditingController searchController;
 
   @override
@@ -102,6 +104,18 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
         title: const Text('FEST_App'),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(100, 96, 125, 139),
+        leading: IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            setState(() {
+              showSearchBar = !showSearchBar;
+              if (!showSearchBar) {
+                query = '';
+                searchController.clear();
+              }
+            });
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
@@ -114,74 +128,104 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
         ],
       ),
 
-      body: Column(
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              controller: searchController, // ⭐這行加上
-              decoration: InputDecoration(
-                hintText: '搜尋音樂祭名稱或地點',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon:
-                    query.isNotEmpty
-                        ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            setState(() {
-                              query = '';
-                              searchController.clear(); // ⭐這行加上，清掉TextField
-                            });
-                          },
-                        )
-                        : null,
+          // 背景層（放漸層或圖片）
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.blueGrey, Color.fromARGB(255, 27, 53, 93)],
               ),
-              onChanged: (value) {
-                setState(() {
-                  query = value;
-                });
-              },
             ),
           ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _refreshFestivals,
-              child:
-                  filteredFestivals.isEmpty
-                      ? const Center(child: Text('找不到符合的音樂祭'))
-                      : isGridView
-                      ? GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
 
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: 1,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                            ),
-                        itemCount: filteredFestivals.length,
-                        itemBuilder: (context, index) {
-                          final fest = filteredFestivals[index];
-                          return _buildFestivalTile(fest);
-                        },
-                      )
-                      : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(
-                          12,
-                          12,
-                          12,
-                          100,
-                        ), // ⭐ 底部多 100px 空間
+          // 前景內容
+          Column(
+            children: [
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _refreshFestivals,
+                  child:
+                      filteredFestivals.isEmpty
+                          ? const Center(child: Text('找不到符合的音樂祭'))
+                          : isGridView
+                          ? GridView.builder(
+                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
 
-                        itemCount: filteredFestivals.length,
-                        itemBuilder: (context, index) {
-                          final fest = filteredFestivals[index];
-                          return _buildFestivalTile(fest);
-                        },
-                      ),
-            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 1,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                ),
+                            itemCount: filteredFestivals.length,
+                            itemBuilder: (context, index) {
+                              final fest = filteredFestivals[index];
+                              return _buildFestivalTile(fest);
+                            },
+                          )
+                          : ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(
+                              12,
+                              12,
+                              12,
+                              100,
+                            ), // ⭐ 底部多 100px 空間
+
+                            itemCount: filteredFestivals.length,
+                            itemBuilder: (context, index) {
+                              final fest = filteredFestivals[index];
+                              return _buildFestivalTile(fest);
+                            },
+                          ),
+                ),
+              ),
+            ],
           ),
+          if (showSearchBar)
+            Positioned(
+              top: 12,
+              left: 12,
+              right: 12,
+              child: Material(
+                // 讓它有陰影與圓角效果
+                elevation: 6,
+                borderRadius: BorderRadius.circular(12),
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: '搜尋音樂祭名稱或地點',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon:
+                        query.isNotEmpty
+                            ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  query = '';
+                                  searchController.clear();
+                                });
+                              },
+                            )
+                            : null,
+                    filled: true,
+                    fillColor: Colors.white.withAlpha(200),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      query = value;
+                    });
+                  },
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -205,7 +249,11 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => UserTimetableScreen(festival: fest),
+                  builder:
+                      (_) => UserTimetableScreen(
+                        festival: fest,
+                        sourcePage: 'list',
+                      ),
                 ),
               );
             },
@@ -280,8 +328,8 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 _saveFavorites();
               },
               child: Container(
-                width: 48, // 🔺拉大觸控面積
-                height: 48,
+                width: 40, // 🔺拉大觸控面積
+                height: 40,
                 alignment: Alignment.center, // 圖示保持置中
                 child: Icon(
                   isStarred ? Icons.star : Icons.star_border,
@@ -321,13 +369,16 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => UserTimetableScreen(festival: fest),
+              builder:
+                  (_) =>
+                      UserTimetableScreen(festival: fest, sourcePage: 'list'),
             ),
           );
         },
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(8),
           ),

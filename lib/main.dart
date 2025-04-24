@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'starred_festivals.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'local_festivals.dart';
 import 'list_festivals.dart';
 import 'organizer.dart';
 import 'custom_organizer.dart';
 import 'user_timetable.dart';
+import 'dart:ui'; // 為了 ImageFilter
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -121,58 +121,62 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   Future<bool> _showPasswordDialog() async {
-    final controller = TextEditingController();
-    bool showError = false;
+    final TextEditingController passwordController = TextEditingController();
+    String? errorText;
 
-    return await showDialog<bool>(
+    return await showDialog(
           context: context,
           barrierDismissible: false,
-          builder:
-              (_) => StatefulBuilder(
-                builder:
-                    (context, setState) => AlertDialog(
-                      title: const Text('輸入主辦密碼'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextField(
-                            controller: controller,
-                            obscureText: true,
-                            decoration: const InputDecoration(labelText: '密碼'),
-                          ),
-                          if (showError)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                '密碼錯誤，請再試一次',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                        ],
+          builder: (dialogContext) {
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return AlertDialog(
+                  title: const Text('輸入密碼'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: '密碼',
+                          errorText: errorText,
+                        ),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('取消'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            final correct = controller.text == '123';
-                            if (correct) {
-                              Navigator.pop(context, true);
-                            } else {
-                              controller.clear();
-                              setState(() => showError = true);
-                            }
-                          },
-                          child: const Text('確認'),
-                        ),
-                      ],
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(dialogContext, rootNavigator: true).pop();
+                      },
+                      child: const Text('取消'),
                     ),
-              ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final password = passwordController.text;
+                        if (password == '123') {
+                          Navigator.of(
+                            dialogContext,
+                            rootNavigator: true,
+                          ).pop(); // 關閉對話框
+                          setState(() => _unlockedOrganizer = true);
+                          _onTabTapped(4);
+                          setState(() => _unlockedOrganizer = false);
+                        } else {
+                          setState(() {
+                            errorText = '密碼錯誤！';
+                            passwordController.clear();
+                          });
+                        }
+                      },
+                      child: const Text('確認'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         ) ??
         false;
   }
@@ -180,25 +184,58 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: _pages,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首頁'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: '已加星號'),
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: '自定義清單'),
-          BottomNavigationBarItem(icon: Icon(Icons.edit), label: '自定義模式'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.manage_accounts),
-            label: '主辦模式',
+      body: Stack(
+        children: [
+          // 主內容頁面
+          PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: _pages,
+          ),
+
+          // 浮動 BottomNavigationBar
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  color: Colors.white.withAlpha(150), // ✅ 半透明白
+                  child: BottomNavigationBar(
+                    backgroundColor: Colors.transparent, // ⬅️ 關鍵：避免白底
+                    currentIndex: _currentIndex,
+                    onTap: _onTabTapped,
+                    type: BottomNavigationBarType.fixed,
+                    selectedFontSize: 12,
+                    unselectedFontSize: 12,
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.home),
+                        label: '首頁',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.star),
+                        label: '已加星號',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.list_alt),
+                        label: '自定義清單',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.edit),
+                        label: '自定義模式',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.manage_accounts),
+                        label: '主辦模式',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),

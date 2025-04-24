@@ -328,13 +328,18 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
       appBar: AppBar(
         title: const Text('主辦模式'),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(200, 96, 125, 139),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showAddFestivalDialog,
-          ),
-        ],
+        backgroundColor: const Color.fromARGB(200, 96, 125, 139),
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(
+          bottom: 70.0,
+          right: 20.0,
+        ), // ⬅️ 避開 BottomNavigationBar
+        child: FloatingActionButton(
+          onPressed: _showAddFestivalDialog, // ← 每頁這個可以換成自己頁面要用的
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          child: const Icon(Icons.add),
+        ),
       ),
 
       body: SafeArea(
@@ -888,362 +893,140 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
               ),
               tabs: tabLabels.map((label) => Tab(text: label)).toList(),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: () async {
-                  final stageNameController = TextEditingController();
-                  Color selectedColor = Colors.indigo;
+          ),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 70.0, right: 20.0), // 避開底部欄
+            child: FloatingActionButton(
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+              child: const Icon(Icons.add),
+              onPressed: () async {
+                final stageNameController = TextEditingController();
+                Color selectedColor = Colors.indigo;
 
-                  final newStage = await showDialog<Map<String, dynamic>>(
-                    context: context,
-                    builder:
-                        (_) => StatefulBuilder(
-                          builder:
-                              (context, setState) => AlertDialog(
-                                title: const Text('新增舞台'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextField(
-                                      controller: stageNameController,
-                                      decoration: const InputDecoration(
-                                        labelText: '舞台名稱',
-                                      ),
+                final newStage = await showDialog<Map<String, dynamic>>(
+                  context: context,
+                  builder:
+                      (_) => StatefulBuilder(
+                        builder:
+                            (context, setState) => AlertDialog(
+                              title: const Text('新增舞台'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    controller: stageNameController,
+                                    decoration: const InputDecoration(
+                                      labelText: '舞台名稱',
                                     ),
-                                    const SizedBox(height: 12),
-                                    Row(
-                                      children: [
-                                        const Text('顏色：'),
-                                        Container(
-                                          width: 24,
-                                          height: 24,
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: selectedColor,
-                                            border: Border.all(
-                                              color: Colors.black,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            final rController =
-                                                TextEditingController();
-                                            final gController =
-                                                TextEditingController();
-                                            final bController =
-                                                TextEditingController();
-                                            Color tempColor =
-                                                selectedColor; // 用 selectedColor 當初始顏色
-                                            void updateControllers(
-                                              Color color,
-                                            ) {
-                                              rController.text =
-                                                  color.red.toString();
-                                              gController.text =
-                                                  color.green.toString();
-                                              bController.text =
-                                                  color.blue.toString();
-                                            }
-
-                                            updateControllers(
-                                              tempColor,
-                                            ); // 初始更新
-
-                                            final picked = await showDialog<
-                                              Color
-                                            >(
-                                              context: context,
-                                              builder:
-                                                  (_) => StatefulBuilder(
-                                                    builder:
-                                                        (
-                                                          context,
-                                                          setStateDialog,
-                                                        ) => AlertDialog(
-                                                          title: const Text(
-                                                            '選擇顏色',
-                                                          ),
-                                                          content: SingleChildScrollView(
-                                                            child: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                ColorPicker(
-                                                                  pickerColor:
-                                                                      tempColor,
-                                                                  onColorChanged: (
-                                                                    color,
-                                                                  ) {
-                                                                    tempColor =
-                                                                        color;
-                                                                    updateControllers(
-                                                                      color,
-                                                                    ); // 拖曳時也同步更新欄位
-                                                                    setState(
-                                                                      () {},
-                                                                    );
-                                                                    setStateDialog(
-                                                                      () {},
-                                                                    );
-                                                                  },
-                                                                  enableAlpha:
-                                                                      false,
-                                                                  labelTypes:
-                                                                      [],
-                                                                  pickerAreaHeightPercent:
-                                                                      0.7,
-                                                                ),
-
-                                                                Row(
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child: TextField(
-                                                                        controller:
-                                                                            rController,
-                                                                        keyboardType:
-                                                                            TextInputType.number,
-                                                                        decoration: const InputDecoration(
-                                                                          labelText:
-                                                                              'R',
-                                                                        ),
-                                                                        onChanged: (
-                                                                          value,
-                                                                        ) {
-                                                                          final r =
-                                                                              int.tryParse(
-                                                                                value,
-                                                                              ) ??
-                                                                              0;
-                                                                          tempColor = tempColor.withRed(
-                                                                            r.clamp(
-                                                                              0,
-                                                                              255,
-                                                                            ),
-                                                                          );
-                                                                          updateControllers(
-                                                                            tempColor,
-                                                                          ); // 保持同步
-                                                                          setState(
-                                                                            () {},
-                                                                          );
-                                                                          setStateDialog(
-                                                                            () {},
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width: 8,
-                                                                    ),
-                                                                    Expanded(
-                                                                      child: TextField(
-                                                                        controller:
-                                                                            gController,
-                                                                        keyboardType:
-                                                                            TextInputType.number,
-                                                                        decoration: const InputDecoration(
-                                                                          labelText:
-                                                                              'G',
-                                                                        ),
-                                                                        onChanged: (
-                                                                          value,
-                                                                        ) {
-                                                                          final g =
-                                                                              int.tryParse(
-                                                                                value,
-                                                                              ) ??
-                                                                              0;
-                                                                          tempColor = tempColor.withGreen(
-                                                                            g.clamp(
-                                                                              0,
-                                                                              255,
-                                                                            ),
-                                                                          );
-                                                                          updateControllers(
-                                                                            tempColor,
-                                                                          );
-                                                                          setState(
-                                                                            () {},
-                                                                          );
-                                                                          setStateDialog(
-                                                                            () {},
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width: 8,
-                                                                    ),
-                                                                    Expanded(
-                                                                      child: TextField(
-                                                                        controller:
-                                                                            bController,
-                                                                        keyboardType:
-                                                                            TextInputType.number,
-                                                                        decoration: const InputDecoration(
-                                                                          labelText:
-                                                                              'B',
-                                                                        ),
-                                                                        onChanged: (
-                                                                          value,
-                                                                        ) {
-                                                                          final b =
-                                                                              int.tryParse(
-                                                                                value,
-                                                                              ) ??
-                                                                              0;
-                                                                          tempColor = tempColor.withBlue(
-                                                                            b.clamp(
-                                                                              0,
-                                                                              255,
-                                                                            ),
-                                                                          );
-                                                                          updateControllers(
-                                                                            tempColor,
-                                                                          );
-                                                                          setState(
-                                                                            () {},
-                                                                          );
-                                                                          setStateDialog(
-                                                                            () {},
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                                const SizedBox(
-                                                                  height: 16,
-                                                                ),
-                                                                Wrap(
-                                                                  spacing: 8,
-                                                                  runSpacing: 8,
-                                                                  children: [
-                                                                    ..._presetColors.map(
-                                                                      (
-                                                                        color,
-                                                                      ) => GestureDetector(
-                                                                        onTap: () {
-                                                                          setState(
-                                                                            () =>
-                                                                                tempColor =
-                                                                                    color,
-                                                                          );
-                                                                          updateControllers(
-                                                                            color,
-                                                                          );
-                                                                          setStateDialog(
-                                                                            () {},
-                                                                          );
-                                                                        },
-                                                                        child: Container(
-                                                                          width:
-                                                                              30,
-                                                                          height:
-                                                                              30,
-                                                                          decoration: BoxDecoration(
-                                                                            color:
-                                                                                color,
-                                                                            shape:
-                                                                                BoxShape.circle,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed:
-                                                                  () =>
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                        null,
-                                                                      ),
-                                                              child: const Text(
-                                                                '取消',
-                                                              ),
-                                                            ),
-                                                            ElevatedButton(
-                                                              onPressed:
-                                                                  () => Navigator.pop(
-                                                                    context,
-                                                                    tempColor,
-                                                                  ),
-                                                              child: const Text(
-                                                                '確定',
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                  ),
-                                            );
-                                            if (picked != null) {
-                                              setState(
-                                                () => selectedColor = picked,
-                                              ); // 🔥🔥🔥按確定後把 picked 更新回 selectedColor
-                                            }
-                                          },
-                                          child: const Text('選擇顏色'),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('取消'),
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      if (stageNameController.text.isNotEmpty) {
-                                        Navigator.pop(context, {
-                                          'stage': stageNameController.text,
-                                          'color':
-                                              '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}', // 把Color轉成 #RRGGBB格式字串
-                                          'performances': {},
-                                        });
-                                      }
-                                    },
-                                    child: const Text('新增'),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      const Text('顏色：'),
+                                      Container(
+                                        width: 24,
+                                        height: 24,
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: selectedColor,
+                                          border: Border.all(
+                                            color: Colors.black,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          final picked = await showDialog<
+                                            Color
+                                          >(
+                                            context: context,
+                                            builder:
+                                                (_) => AlertDialog(
+                                                  title: const Text('選擇顏色'),
+                                                  content: BlockPicker(
+                                                    pickerColor: selectedColor,
+                                                    onColorChanged: (color) {
+                                                      selectedColor = color;
+                                                    },
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed:
+                                                          () => Navigator.pop(
+                                                            context,
+                                                          ),
+                                                      child: const Text('取消'),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed:
+                                                          () => Navigator.pop(
+                                                            context,
+                                                            selectedColor,
+                                                          ),
+                                                      child: const Text('確定'),
+                                                    ),
+                                                  ],
+                                                ),
+                                          );
+
+                                          if (picked != null) {
+                                            setState(
+                                              () => selectedColor = picked,
+                                            );
+                                          }
+                                        },
+                                        child: const Text('選擇顏色'),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                        ),
-                  );
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('取消'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (stageNameController.text.isNotEmpty) {
+                                      Navigator.pop(context, {
+                                        'stage': stageNameController.text,
+                                        'color':
+                                            '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
+                                        'performances': {},
+                                      });
+                                    }
+                                  },
+                                  child: const Text('新增'),
+                                ),
+                              ],
+                            ),
+                      ),
+                );
 
-                  // 接收結果後這裡才做 setState
-                  if (newStage != null) {
-                    setState(() {
-                      stages.add(newStage);
-                    });
+                if (newStage != null) {
+                  setState(() {
+                    stages.add(newStage);
+                  });
 
-                    // 即時同步更新
-                    widget.onUpdate({
-                      'id': widget.festival['id'],
-                      'name': widget.festival['name'] ?? '',
-                      'start': widget.festival['start'] ?? '',
-                      'end': widget.festival['end'] ?? '',
-                      'stages': stages,
-                      'image': widget.festival['image'] ?? '',
-                    });
-                  }
-                },
-              ),
-            ],
+                  widget.onUpdate({
+                    'id': widget.festival['id'],
+                    'name': widget.festival['name'] ?? '',
+                    'start': widget.festival['start'] ?? '',
+                    'end': widget.festival['end'] ?? '',
+                    'stages': stages,
+                    'image': widget.festival['image'] ?? '',
+                  });
+                }
+              },
+            ),
           ),
+
           body: TabBarView(
             children: List.generate(tabLabels.length, (tabIndex) {
               final dateKey = tabKeys[tabIndex];

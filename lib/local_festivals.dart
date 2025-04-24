@@ -99,7 +99,11 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => UserTimetableScreen(festival: fest),
+                  builder:
+                      (_) => UserTimetableScreen(
+                        festival: fest,
+                        sourcePage: 'local',
+                      ),
                 ),
               );
             },
@@ -191,13 +195,16 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => UserTimetableScreen(festival: fest),
+              builder:
+                  (_) =>
+                      UserTimetableScreen(festival: fest, sourcePage: 'local'),
             ),
           );
         },
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           decoration: BoxDecoration(
+            color: Colors.white.withAlpha(200),
             border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(8),
           ),
