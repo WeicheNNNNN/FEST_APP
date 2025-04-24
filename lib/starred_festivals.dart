@@ -74,7 +74,8 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                 ? const Center(child: Text('目前沒有加星號的音樂祭'))
                 : isGridView
                 ? GridView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
+
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 1,
@@ -87,13 +88,20 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                     return _buildFestivalTile(fest);
                   },
                 )
-                : ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: starredFestivals.length,
-                  itemBuilder: (context, index) {
-                    final fest = starredFestivals[index];
-                    return _buildFestivalTile(fest);
-                  },
+                : SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 80.0,
+                    ), // ⬅️ 為 BottomNavigationBar 預留空間
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: starredFestivals.length,
+                      itemBuilder: (context, index) {
+                        final fest = starredFestivals[index];
+                        return _buildFestivalTile(fest);
+                      },
+                    ),
+                  ),
                 ),
       ),
     );

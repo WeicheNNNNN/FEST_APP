@@ -59,7 +59,7 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                 ? const Center(child: Text('尚未建立任何自定義音樂祭'))
                 : isGridView
                 ? GridView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 1,
@@ -72,13 +72,20 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                     return _buildFestivalTile(fest);
                   },
                 )
-                : ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: localFestivals.length,
-                  itemBuilder: (context, index) {
-                    final fest = localFestivals[index];
-                    return _buildFestivalTile(fest);
-                  },
+                : SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 80.0,
+                    ), // ⬅️ 為 BottomNavigationBar 預留空間
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: localFestivals.length,
+                      itemBuilder: (context, index) {
+                        final fest = localFestivals[index];
+                        return _buildFestivalTile(fest);
+                      },
+                    ),
+                  ),
                 ),
       ),
     );

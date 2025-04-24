@@ -546,19 +546,26 @@ class _FestivalListDialogState extends State<FestivalListDialog> {
 
             const SizedBox(height: 12),
             Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: filteredFestivals.length,
-                itemBuilder: (context, index) {
-                  final fest = filteredFestivals[index];
-                  return ListTile(
-                    title: Text(fest['name'] ?? ''),
-                    subtitle: Text(fest['city'] ?? ''),
-                    onTap: () {
-                      Navigator.pop(context, fest['name']);
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 80.0,
+                  ), // ⬅️ 為 BottomNavigationBar 預留空間
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: filteredFestivals.length,
+                    itemBuilder: (context, index) {
+                      final fest = filteredFestivals[index];
+                      return ListTile(
+                        title: Text(fest['name'] ?? ''),
+                        subtitle: Text(fest['city'] ?? ''),
+                        onTap: () {
+                          Navigator.pop(context, fest['name']);
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ],

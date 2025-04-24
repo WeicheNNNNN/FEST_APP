@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'supabase_service.dart';
+import 'dart:ui';
 
 import 'user_timetable.dart';
 
@@ -136,7 +137,10 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Colors.blueGrey, Color.fromARGB(255, 27, 53, 93)],
+                colors: [
+                  Color.fromARGB(255, 255, 255, 255),
+                  Color.fromARGB(255, 255, 255, 255),
+                ],
               ),
             ),
           ),
@@ -152,7 +156,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                           ? const Center(child: Text('找不到符合的音樂祭'))
                           : isGridView
                           ? GridView.builder(
-                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
+                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
 
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
@@ -167,65 +171,103 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                               return _buildFestivalTile(fest);
                             },
                           )
-                          : ListView.builder(
-                            padding: const EdgeInsets.fromLTRB(
-                              12,
-                              12,
-                              12,
-                              100,
-                            ), // ⭐ 底部多 100px 空間
+                          : SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 80.0,
+                              ), // ⬅️ 為 BottomNavigationBar 預留空間
+                              child: ListView.builder(
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  12,
+                                  12,
+                                  100,
+                                ), // ⭐ 底部多 100px 空間
 
-                            itemCount: filteredFestivals.length,
-                            itemBuilder: (context, index) {
-                              final fest = filteredFestivals[index];
-                              return _buildFestivalTile(fest);
-                            },
+                                itemCount: filteredFestivals.length,
+                                itemBuilder: (context, index) {
+                                  final fest = filteredFestivals[index];
+                                  return _buildFestivalTile(fest);
+                                },
+                              ),
+                            ),
                           ),
                 ),
               ),
             ],
           ),
-          if (showSearchBar)
-            Positioned(
-              top: 12,
-              left: 12,
-              right: 12,
-              child: Material(
-                // 讓它有陰影與圓角效果
-                elevation: 6,
-                borderRadius: BorderRadius.circular(12),
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: '搜尋音樂祭名稱或地點',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon:
-                        query.isNotEmpty
-                            ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                setState(() {
-                                  query = '';
-                                  searchController.clear();
-                                });
-                              },
-                            )
-                            : null,
-                    filled: true,
-                    fillColor: Colors.white.withAlpha(200),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+
+          // === 搜尋欄動畫區塊 ===
+          Positioned(
+            top: 12,
+            left: 12,
+            right: 12,
+            child: AnimatedScale(
+              scale: showSearchBar ? 1.0 : 0.8,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutBack,
+              child: AnimatedOpacity(
+                opacity: showSearchBar ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: IgnorePointer(
+                  ignoring: !showSearchBar,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // ✅ 模糊程度
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.25), // ✅ 半透明底
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            hintText: '搜尋音樂祭名稱或地點',
+                            hintStyle: const TextStyle(
+                              color: Color.fromARGB(200, 255, 255, 255),
+                            ), // ⬅️ hint 提示字顏色
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: Color.fromARGB(200, 255, 255, 255),
+                            ),
+
+                            suffixIcon:
+                                query.isNotEmpty
+                                    ? IconButton(
+                                      icon: const Icon(
+                                        Icons.clear,
+                                        color: Colors.white,
+                                      ),
+
+                                      onPressed: () {
+                                        setState(() {
+                                          query = '';
+                                          searchController.clear();
+                                        });
+                                      },
+                                    )
+                                    : null,
+                            filled: true,
+                            fillColor: Colors.transparent, // ✅ 裡層設 transparent
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              query = value;
+                            });
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      query = value;
-                    });
-                  },
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
@@ -378,7 +420,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Colors.white.withAlpha(200),
             border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(8),
           ),
