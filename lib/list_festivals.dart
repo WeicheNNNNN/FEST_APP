@@ -300,6 +300,13 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                   fit: BoxFit.cover,
                 ),
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(100),
+                    blurRadius: 6,
+                    offset: const Offset(5, 7),
+                  ),
+                ],
               ),
               child: Container(
                 decoration: BoxDecoration(
@@ -407,11 +414,17 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
           );
         },
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+          margin: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
             color: Colors.white.withAlpha(200),
-            border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(50),
+                blurRadius: 6,
+                offset: const Offset(5, 7),
+              ),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

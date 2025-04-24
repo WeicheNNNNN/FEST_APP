@@ -129,12 +129,14 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
     final festName = fest['name'] ?? '';
 
     if (isGridView) {
+      // --- 格子模式 ---
       return Stack(
         children: [
           GestureDetector(
             onTap: () async {
               final prefs = await SharedPreferences.getInstance();
               prefs.setString('lastFestival', jsonEncode(fest));
+              if (!context.mounted) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -157,10 +159,17 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                   fit: BoxFit.cover,
                 ),
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(100),
+                    blurRadius: 6,
+                    offset: const Offset(5, 7),
+                  ),
+                ],
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withAlpha((0.4 * 255).round()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -204,81 +213,144 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
             top: 0,
             right: 0,
             child: GestureDetector(
-              behavior: HitTestBehavior.translucent, // 確保透明區域也能點擊
+              behavior: HitTestBehavior.translucent,
               onTap: () => _toggleFavorite(festName),
               child: Container(
-                width: 40, // 👉 增加觸控面積
+                width: 40,
                 height: 40,
                 alignment: Alignment.center,
-                child: Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 20, // ⭐ 圖案保持小
-                ),
+                child: const Icon(Icons.star, color: Colors.amber, size: 20),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 8,
+            left: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color:
+                    (fest['isPaid'] == true)
+                        ? Colors.orange.shade900
+                        : Colors.green.shade900,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                (fest['isPaid'] == true) ? '付費' : '免費',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
           ),
         ],
       );
     } else {
-      return Container(
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white.withAlpha(200),
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image(
-              image:
-                  imageUrl.isNotEmpty
-                      ? NetworkImage(imageUrl)
-                      : const AssetImage('assets/default.jpg') as ImageProvider,
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
+      // --- 清單模式 ---
+      return GestureDetector(
+        onTap: () async {
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setString('lastFestival', jsonEncode(fest));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => UserTimetableScreen(
+                    festival: fest,
+                    sourcePage: 'starred',
+                  ),
             ),
-          ),
-          title: Text(
-            festName,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(
-                '${fest['start'] ?? ''} ~ ${fest['end'] ?? ''}',
-                style: const TextStyle(fontSize: 14),
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white.withAlpha(200),
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(50),
+                blurRadius: 6,
+                offset: const Offset(5, 7),
               ),
-              const SizedBox(height: 2),
-              Text(fest['city'] ?? '', style: const TextStyle(fontSize: 14)),
             ],
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.star),
-            color: Colors.amber,
-            iconSize: 30,
-            onPressed: () {
-              _toggleFavorite(festName);
-            },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image(
+                    image:
+                        imageUrl.isNotEmpty
+                            ? NetworkImage(imageUrl)
+                            : const AssetImage('assets/default.jpg')
+                                as ImageProvider,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            festName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  (fest['isPaid'] == true)
+                                      ? Colors.orange.shade900
+                                      : Colors.green.shade900,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              (fest['isPaid'] == true) ? '付費' : '免費',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${fest['city'] ?? ''}｜${fest['start'] ?? ''} ~ ${fest['end'] ?? ''}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 2),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.star),
+                  color: Colors.amber,
+                  iconSize: 25,
+                  onPressed: () {
+                    _toggleFavorite(festName);
+                  },
+                ),
+              ],
+            ),
           ),
-          onTap: () async {
-            final prefs = await SharedPreferences.getInstance();
-            prefs.setString('lastFestival', jsonEncode(fest));
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) => UserTimetableScreen(
-                      festival: fest,
-                      sourcePage: 'starred',
-                    ),
-              ),
-            );
-          },
         ),
       );
     }

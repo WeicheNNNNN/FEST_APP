@@ -142,6 +142,13 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                   fit: BoxFit.cover,
                 ),
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(100),
+                    blurRadius: 6,
+                    offset: const Offset(5, 7),
+                  ),
+                ],
               ),
               child: Container(
                 decoration: BoxDecoration(
@@ -226,11 +233,17 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
           );
         },
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+          margin: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
             color: Colors.white.withAlpha(200),
-            border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(50),
+                blurRadius: 6,
+                offset: const Offset(5, 7),
+              ),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -256,17 +269,19 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Row(
+                        mainAxisSize: MainAxisSize.min, // ⭐讓Row大小剛好，不要撐開
                         children: [
                           Text(
-                            festName,
+                            fest['name'] ?? '',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 6), // 小小間距
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -283,23 +298,20 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                               (fest['isPaid'] == true) ? '付費' : '免費',
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 10,
+                                fontSize: 10, // ⭐這裡字體要小一點才不會太擠
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 4),
                       Text(
-                        '${fest['start'] ?? ''} ~ ${fest['end'] ?? ''}',
+                        '${fest['city'] ?? ''}｜${fest['start'] ?? ''} ~ ${fest['end'] ?? ''}',
                         style: const TextStyle(fontSize: 14),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        fest['city'] ?? '',
-                        style: const TextStyle(fontSize: 14),
-                      ),
                     ],
                   ),
                 ),
