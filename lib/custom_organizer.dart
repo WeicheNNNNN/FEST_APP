@@ -274,7 +274,7 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
       appBar: AppBar(
         title: const Text('自定義模式'),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(200, 96, 125, 139),
+        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(

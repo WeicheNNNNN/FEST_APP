@@ -40,7 +40,7 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
       appBar: AppBar(
         title: const Text('自定義清單'),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(100, 96, 125, 139),
+        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
@@ -53,40 +53,57 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
         ],
       ),
 
-      body: SafeArea(
-        child:
-            localFestivals.isEmpty
-                ? const Center(child: Text('尚未建立任何自定義音樂祭'))
-                : isGridView
-                ? GridView.builder(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemCount: localFestivals.length,
-                  itemBuilder: (context, index) {
-                    final fest = localFestivals[index];
-                    return _buildFestivalTile(fest);
-                  },
-                )
-                : SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 80.0,
-                    ), // ⬅️ 為 BottomNavigationBar 預留空間
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(12),
+      body: Stack(
+        children: [
+          // 🔹 背景漸層
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFFFFFF), Color(0xFF1E4160)],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child:
+                localFestivals.isEmpty
+                    ? const Center(child: Text('尚未建立任何自定義音樂祭'))
+                    : isGridView
+                    ? GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
                       itemCount: localFestivals.length,
                       itemBuilder: (context, index) {
                         final fest = localFestivals[index];
                         return _buildFestivalTile(fest);
                       },
+                    )
+                    : SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 80.0,
+                        ), // ⬅️ 為 BottomNavigationBar 預留空間
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: localFestivals.length,
+                          itemBuilder: (context, index) {
+                            final fest = localFestivals[index];
+                            return _buildFestivalTile(fest);
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+          ),
+        ],
       ),
     );
   }

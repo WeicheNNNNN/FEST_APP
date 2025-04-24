@@ -55,7 +55,7 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
       appBar: AppBar(
         title: const Text('已加星號音樂祭'),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(100, 96, 125, 139),
+        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
@@ -68,41 +68,58 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
         ],
       ),
 
-      body: SafeArea(
-        child:
-            starredFestivals.isEmpty
-                ? const Center(child: Text('目前沒有加星號的音樂祭'))
-                : isGridView
-                ? GridView.builder(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
+      body: Stack(
+        children: [
+          // 🔹 背景漸層
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFFFFFF), Color(0xFF1E4160)],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child:
+                starredFestivals.isEmpty
+                    ? const Center(child: Text('目前沒有加星號的音樂祭'))
+                    : isGridView
+                    ? GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
 
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemCount: starredFestivals.length,
-                  itemBuilder: (context, index) {
-                    final fest = starredFestivals[index];
-                    return _buildFestivalTile(fest);
-                  },
-                )
-                : SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 80.0,
-                    ), // ⬅️ 為 BottomNavigationBar 預留空間
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(12),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
                       itemCount: starredFestivals.length,
                       itemBuilder: (context, index) {
                         final fest = starredFestivals[index];
                         return _buildFestivalTile(fest);
                       },
+                    )
+                    : SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 80.0,
+                        ), // ⬅️ 為 BottomNavigationBar 預留空間
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: starredFestivals.length,
+                          itemBuilder: (context, index) {
+                            final fest = starredFestivals[index];
+                            return _buildFestivalTile(fest);
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+          ),
+        ],
       ),
     );
   }

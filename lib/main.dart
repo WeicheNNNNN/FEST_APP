@@ -199,42 +199,34 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             left: 0,
             right: 0,
             bottom: 0,
-            child: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  color: Colors.white.withAlpha(150), // ✅ 半透明白
-                  child: BottomNavigationBar(
-                    backgroundColor: Colors.transparent, // ⬅️ 關鍵：避免白底
-                    currentIndex: _currentIndex,
-                    onTap: _onTabTapped,
-                    type: BottomNavigationBarType.fixed,
-                    selectedFontSize: 12,
-                    unselectedFontSize: 12,
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.home),
-                        label: '首頁',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.star),
-                        label: '已加星號',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.list_alt),
-                        label: '自定義清單',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.edit),
-                        label: '自定義模式',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.manage_accounts),
-                        label: '主辦模式',
-                      ),
-                    ],
+            child: Container(
+              color: Colors.white,
+              child: BottomNavigationBar(
+                backgroundColor: Colors.white,
+                currentIndex: _currentIndex,
+                onTap: _onTabTapped,
+                type: BottomNavigationBarType.fixed,
+                selectedFontSize: 12,
+                unselectedFontSize: 12,
+                items: const [
+                  BottomNavigationBarItem(icon: Icon(Icons.home), label: '首頁'),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.star),
+                    label: '已加星號',
                   ),
-                ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.list_alt),
+                    label: '自定義清單',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.edit),
+                    label: '自定義模式',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.manage_accounts),
+                    label: '主辦模式',
+                  ),
+                ],
               ),
             ),
           ),

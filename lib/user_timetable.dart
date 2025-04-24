@@ -161,17 +161,19 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
 
           title: Text('${widget.festival['name']} 時間表'),
           centerTitle: true,
-          backgroundColor: Color.fromARGB(100, 96, 125, 139),
+          backgroundColor: Color.fromARGB(180, 30, 65, 96),
           bottom: TabBar(
             isScrollable: true,
             labelPadding: const EdgeInsets.symmetric(horizontal: 30),
             labelStyle: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
             unselectedLabelStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
+              color: Colors.white70,
             ),
             tabs: tabInfo.map((d) => Tab(text: d['label'])).toList(),
           ),

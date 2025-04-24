@@ -104,7 +104,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
       appBar: AppBar(
         title: const Text('FEST_App'),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(100, 96, 125, 139),
+        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
         leading: IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
@@ -139,7 +139,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 end: Alignment.bottomRight,
                 colors: [
                   Color.fromARGB(255, 255, 255, 255),
-                  Color.fromARGB(255, 255, 255, 255),
+                  Color.fromARGB(255, 30, 65, 96),
                 ],
               ),
             ),
@@ -211,57 +211,46 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 duration: const Duration(milliseconds: 200),
                 child: IgnorePointer(
                   ignoring: !showSearchBar,
-                  child: ClipRRect(
+                  child: Material(
+                    elevation: 6,
                     borderRadius: BorderRadius.circular(12),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // ✅ 模糊程度
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25), // ✅ 半透明底
-                          borderRadius: BorderRadius.circular(12),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: '搜尋音樂祭名稱或地點',
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.grey,
                         ),
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: '搜尋音樂祭名稱或地點',
-                            hintStyle: const TextStyle(
-                              color: Color.fromARGB(200, 255, 255, 255),
-                            ), // ⬅️ hint 提示字顏色
-                            prefixIcon: const Icon(
-                              Icons.search,
-                              color: Color.fromARGB(200, 255, 255, 255),
-                            ),
-
-                            suffixIcon:
-                                query.isNotEmpty
-                                    ? IconButton(
-                                      icon: const Icon(
-                                        Icons.clear,
-                                        color: Colors.white,
-                                      ),
-
-                                      onPressed: () {
-                                        setState(() {
-                                          query = '';
-                                          searchController.clear();
-                                        });
-                                      },
-                                    )
-                                    : null,
-                            filled: true,
-                            fillColor: Colors.transparent, // ✅ 裡層設 transparent
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              query = value;
-                            });
-                          },
+                        suffixIcon:
+                            query.isNotEmpty
+                                ? IconButton(
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      query = '';
+                                      searchController.clear();
+                                    });
+                                  },
+                                )
+                                : null,
+                        filled: true,
+                        fillColor: Colors.white, // ✅ 實心白底
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                       ),
+                      style: const TextStyle(color: Colors.black), // 使用者輸入文字顏色
+                      onChanged: (value) {
+                        setState(() {
+                          query = value;
+                        });
+                      },
                     ),
                   ),
                 ),
