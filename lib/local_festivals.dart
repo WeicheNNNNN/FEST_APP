@@ -72,8 +72,8 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color.fromARGB(220, 22, 38, 47),
-                    Color.fromARGB(255, 22, 38, 47),
+                    Color.fromARGB(255, 30, 46, 56),
+                    Color.fromARGB(255, 30, 46, 56),
                   ],
                 ),
               ),

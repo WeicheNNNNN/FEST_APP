@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'list_festivals.dart';
 import 'main.dart';
-import 'starred_festivals.dart';
-import 'local_festivals.dart';
 
 class UserTimetableScreen extends StatefulWidget {
   final Map<String, dynamic> festival;
@@ -159,21 +156,30 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
             },
           ),
 
-          title: Text('${widget.festival['name']} 時間表'),
+          title: Text(
+            '${widget.festival['name']} 時間表',
+            style: TextStyle(
+              color: Color.fromARGB(255, 231, 190, 123),
+              fontWeight: FontWeight.bold, // 粗體
+            ), // ⭐ 字體顏色
+          ),
+          iconTheme: const IconThemeData(
+            color: Color.fromARGB(255, 231, 190, 123),
+          ),
           centerTitle: true,
-          backgroundColor: Color.fromARGB(180, 30, 65, 96),
+          backgroundColor: Color.fromARGB(255, 30, 46, 56),
           bottom: TabBar(
             isScrollable: true,
             labelPadding: const EdgeInsets.symmetric(horizontal: 30),
             labelStyle: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color.fromARGB(255, 231, 190, 123),
             ),
             unselectedLabelStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
-              color: Colors.white70,
+              color: Color.fromARGB(255, 231, 190, 123),
             ),
             tabs: tabInfo.map((d) => Tab(text: d['label'])).toList(),
           ),
@@ -404,7 +410,7 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                                                       ? stageColor
                                                                       : Colors
                                                                           .grey
-                                                                          .shade400,
+                                                                          .shade300,
                                                               borderRadius:
                                                                   BorderRadius.circular(
                                                                     8,
@@ -413,7 +419,7 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                                                 color:
                                                                     Colors
                                                                         .grey
-                                                                        .shade300,
+                                                                        .shade400,
                                                               ),
                                                             ),
                                                             child: Text(
