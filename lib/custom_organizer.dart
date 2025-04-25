@@ -272,9 +272,18 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('自定義模式'),
+        title: const Text(
+          '自定義編輯音樂祭',
+          style: TextStyle(
+            color: Color.fromARGB(255, 231, 190, 123),
+            fontWeight: FontWeight.bold, // 粗體
+          ), // ⭐ 字體顏色
+        ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
+        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 231, 190, 123),
+        ),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(
@@ -291,7 +300,7 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
       body: SafeArea(
         child:
             festivals.isEmpty
-                ? const Center(child: Text('尚未建立任何音樂祭'))
+                ? const Center(child: Text('尚未建立任何自定義音樂祭'))
                 : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 200),
                   itemCount: festivals.length,

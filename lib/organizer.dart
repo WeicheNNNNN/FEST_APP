@@ -326,9 +326,18 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('主辦模式'),
+        title: const Text(
+          '主辦模式',
+          style: TextStyle(
+            color: Color.fromARGB(255, 231, 190, 123),
+            fontWeight: FontWeight.bold, // 粗體
+          ), // ⭐ 字體顏色
+        ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
+        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 231, 190, 123),
+        ),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(

@@ -202,12 +202,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             child: Container(
               color: Colors.white,
               child: BottomNavigationBar(
-                backgroundColor: Colors.white,
+                backgroundColor: const Color.fromARGB(255, 22, 38, 47),
                 currentIndex: _currentIndex,
                 onTap: _onTabTapped,
                 type: BottomNavigationBarType.fixed,
                 selectedFontSize: 12,
+                selectedIconTheme: const IconThemeData(size: 38),
+                selectedItemColor: const Color.fromARGB(255, 231, 190, 123),
                 unselectedFontSize: 12,
+                unselectedIconTheme: const IconThemeData(size: 28),
+                unselectedItemColor: const Color.fromARGB(150, 231, 190, 123),
+
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+
                 items: const [
                   BottomNavigationBarItem(icon: Icon(Icons.home), label: '首頁'),
                   BottomNavigationBarItem(

@@ -38,9 +38,18 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('自定義清單'),
+        title: const Text(
+          '自定義清單',
+          style: TextStyle(
+            color: Color.fromARGB(255, 231, 190, 123),
+            fontWeight: FontWeight.bold, // 粗體
+          ), // ⭐ 字體顏色
+        ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
+        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 231, 190, 123),
+        ),
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
@@ -62,7 +71,10 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFFFFF), Color(0xFF1E4160)],
+                  colors: [
+                    Color.fromARGB(220, 22, 38, 47),
+                    Color.fromARGB(255, 22, 38, 47),
+                  ],
                 ),
               ),
             ),
@@ -70,7 +82,14 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
           SafeArea(
             child:
                 localFestivals.isEmpty
-                    ? const Center(child: Text('尚未建立任何自定義音樂祭'))
+                    ? const Center(
+                      child: Text(
+                        '尚未建立任何自定義音樂祭',
+                        style: TextStyle(
+                          color: Color.fromARGB(200, 231, 190, 123),
+                        ), // ⭐ 字體顏色
+                      ),
+                    )
                     : isGridView
                     ? GridView.builder(
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
@@ -201,12 +220,12 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
               decoration: BoxDecoration(
                 color:
                     (fest['isPaid'] == true)
-                        ? Colors.orange.shade900
-                        : Colors.green.shade900,
+                        ? Color.fromARGB(223, 243, 105, 76)
+                        : Color.fromARGB(255, 40, 140, 112),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                (fest['isPaid'] == true) ? '付費' : '免費',
+                (fest['isPaid'] == true) ? '付' : '免',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -290,8 +309,8 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
                             decoration: BoxDecoration(
                               color:
                                   (fest['isPaid'] == true)
-                                      ? Colors.orange.shade900
-                                      : Colors.green.shade900,
+                                      ? Color.fromARGB(223, 243, 105, 76)
+                                      : Color.fromARGB(255, 40, 140, 112),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(

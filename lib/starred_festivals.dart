@@ -53,9 +53,19 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('已加星號音樂祭'),
+        title: const Text(
+          '收藏清單',
+          style: TextStyle(
+            color: Color.fromARGB(255, 231, 190, 123),
+            fontWeight: FontWeight.bold, // 粗體
+          ), // ⭐ 字體顏色
+        ),
+
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
+        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 231, 190, 123),
+        ),
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
@@ -77,7 +87,10 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFFFFF), Color(0xFF1E4160)],
+                  colors: [
+                    Color.fromARGB(220, 22, 38, 47),
+                    Color.fromARGB(255, 22, 38, 47),
+                  ],
                 ),
               ),
             ),
@@ -85,7 +98,14 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
           SafeArea(
             child:
                 starredFestivals.isEmpty
-                    ? const Center(child: Text('目前沒有加星號的音樂祭'))
+                    ? const Center(
+                      child: Text(
+                        '目前沒有收藏的音樂祭',
+                        style: TextStyle(
+                          color: Color.fromARGB(200, 231, 190, 123),
+                        ), // ⭐ 字體顏色
+                      ),
+                    )
                     : isGridView
                     ? GridView.builder(
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
@@ -231,12 +251,12 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
               decoration: BoxDecoration(
                 color:
                     (fest['isPaid'] == true)
-                        ? Colors.orange.shade900
-                        : Colors.green.shade900,
+                        ? Color.fromARGB(223, 243, 105, 76)
+                        : Color.fromARGB(255, 40, 140, 112),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                (fest['isPaid'] == true) ? '付費' : '免費',
+                (fest['isPaid'] == true) ? '付' : '免',
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
@@ -316,8 +336,8 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                             decoration: BoxDecoration(
                               color:
                                   (fest['isPaid'] == true)
-                                      ? Colors.orange.shade900
-                                      : Colors.green.shade900,
+                                      ? Color.fromARGB(223, 243, 105, 76)
+                                      : Color.fromARGB(255, 40, 140, 112),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(

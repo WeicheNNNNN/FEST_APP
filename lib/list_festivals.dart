@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'supabase_service.dart';
-import 'dart:ui';
 
 import 'user_timetable.dart';
 
@@ -102,9 +101,19 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FEST_App'),
+        title: const Text(
+          'Festigo',
+          style: TextStyle(
+            color: Color.fromARGB(255, 231, 190, 123),
+            fontWeight: FontWeight.bold, // 粗體
+          ), // ⭐ 字體顏色
+        ),
+
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(180, 30, 65, 96),
+        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 231, 190, 123),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
@@ -135,11 +144,11 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
-                  Color.fromARGB(255, 255, 255, 255),
-                  Color.fromARGB(255, 30, 65, 96),
+                  Color.fromARGB(220, 22, 38, 47),
+                  Color.fromARGB(255, 22, 38, 47),
                 ],
               ),
             ),
@@ -153,7 +162,14 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                   onRefresh: _refreshFestivals,
                   child:
                       filteredFestivals.isEmpty
-                          ? const Center(child: Text('找不到符合的音樂祭'))
+                          ? const Center(
+                            child: Text(
+                              '找不到符合的音樂祭',
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 231, 190, 123),
+                              ), // ⭐ 字體顏色
+                            ),
+                          )
                           : isGridView
                           ? GridView.builder(
                             padding: const EdgeInsets.fromLTRB(12, 12, 12, 180),
@@ -386,12 +402,12 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
               decoration: BoxDecoration(
                 color:
                     (fest['isPaid'] == true)
-                        ? Colors.orange.shade900
-                        : Colors.green.shade900,
+                        ? Color.fromARGB(223, 243, 105, 76)
+                        : Color.fromARGB(255, 40, 140, 112),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                (fest['isPaid'] == true) ? '付費' : '免費',
+                (fest['isPaid'] == true) ? '付' : '免',
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
@@ -471,8 +487,8 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                             decoration: BoxDecoration(
                               color:
                                   (fest['isPaid'] == true)
-                                      ? Colors.orange.shade900
-                                      : Colors.green.shade900,
+                                      ? Color.fromARGB(223, 243, 105, 76)
+                                      : Color.fromARGB(255, 40, 140, 112),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
