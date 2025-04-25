@@ -3,9 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'starred_festivals.dart';
 import 'local_festivals.dart';
 import 'list_festivals.dart';
-import 'organizer.dart';
 import 'custom_organizer.dart';
 import 'user_timetable.dart';
+import 'settings_screen.dart';
 // 為了 ImageFilter
 
 void main() async {
@@ -26,9 +26,9 @@ class MusicFestApp extends StatelessWidget {
     return MaterialApp(
       title: '音樂祭時間表',
       theme: ThemeData(
-        primaryColor: const Color.fromARGB(255, 64, 84, 109),
+        primaryColor: const Color.fromARGB(255, 40, 60, 70),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 64, 84, 109),
+          seedColor: const Color.fromARGB(255, 40, 60, 70),
         ),
       ),
       home: const MainNavigationScreen(),
@@ -55,6 +55,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     with WidgetsBindingObserver {
   late final PageController _pageController;
   late int _currentIndex;
+  // ignore: unused_field
   bool _unlockedOrganizer = false;
 
   final List<Widget> _pages = const [
@@ -62,7 +63,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     StarredFestivalsScreen(),
     LocalFestivalsScreen(),
     CustomOrganizerScreen(),
-    OrganizerHomeScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -106,79 +107,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   void _onTabTapped(int index) async {
-    if (index == 4 && !_unlockedOrganizer) {
-      final success = await _showPasswordDialog();
-      if (!success) return;
-      setState(() => _unlockedOrganizer = true);
-    }
-
     setState(() => _currentIndex = index);
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
     );
-  }
-
-  Future<bool> _showPasswordDialog() async {
-    final TextEditingController passwordController = TextEditingController();
-    String? errorText;
-
-    return await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (dialogContext) {
-            return StatefulBuilder(
-              builder: (context, setState) {
-                return AlertDialog(
-                  title: const Text('輸入密碼'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: '密碼',
-                          errorText: errorText,
-                        ),
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(dialogContext, rootNavigator: true).pop();
-                      },
-                      child: const Text('取消'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final password = passwordController.text;
-                        if (password == '123') {
-                          Navigator.of(
-                            dialogContext,
-                            rootNavigator: true,
-                          ).pop(); // 關閉對話框
-                          setState(() => _unlockedOrganizer = true);
-                          _onTabTapped(4);
-                          setState(() => _unlockedOrganizer = false);
-                        } else {
-                          setState(() {
-                            errorText = '密碼錯誤！';
-                            passwordController.clear();
-                          });
-                        }
-                      },
-                      child: const Text('確認'),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-        ) ??
-        false;
   }
 
   @override
@@ -223,7 +157,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                     label: '已加星號',
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.list_alt),
+                    icon: Icon(Icons.list_alt_outlined),
                     label: '自定義清單',
                   ),
                   BottomNavigationBarItem(
@@ -231,8 +165,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                     label: '自定義模式',
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.manage_accounts),
-                    label: '主辦模式',
+                    icon: Icon(Icons.settings),
+                    label: '設定',
                   ),
                 ],
               ),

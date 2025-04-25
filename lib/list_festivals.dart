@@ -106,13 +106,6 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
           style: TextStyle(
             color: Color.fromARGB(255, 231, 190, 123),
             fontWeight: FontWeight.bold, // 粗體
-            shadows: [
-              Shadow(
-                blurRadius: 5.0,
-                color: Color.fromARGB(255, 233, 152, 21), // 發光色
-                offset: Offset(0, 0),
-              ),
-            ],
           ), // ⭐ 字體顏色
         ),
 
