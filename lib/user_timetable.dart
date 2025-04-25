@@ -169,7 +169,7 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
           centerTitle: true,
           backgroundColor: Color.fromARGB(255, 30, 46, 56),
           bottom: TabBar(
-            isScrollable: true,
+            isScrollable: false,
             labelPadding: const EdgeInsets.symmetric(horizontal: 30),
             labelStyle: const TextStyle(
               fontSize: 18,
@@ -179,8 +179,11 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
             unselectedLabelStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
-              color: Color.fromARGB(255, 231, 190, 123),
+              color: Color.fromARGB(150, 231, 190, 123),
             ),
+            indicatorColor: Color.fromARGB(255, 231, 190, 123), // 線的顏色
+            indicatorWeight: 4.0, // 線的粗細
+            indicatorPadding: EdgeInsets.symmetric(horizontal: 10), // 左右內縮
             tabs: tabInfo.map((d) => Tab(text: d['label'])).toList(),
           ),
         ),
@@ -210,7 +213,10 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                     padding: const EdgeInsets.only(right: 8),
                                     child: Text(
                                       timeSlots[i],
-                                      style: const TextStyle(fontSize: 12),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color.fromARGB(255, 40, 60, 70),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -285,10 +291,18 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                                       top: BorderSide(
                                                         color:
                                                             isHour
-                                                                ? Colors.black
-                                                                : Colors
-                                                                    .grey
-                                                                    .shade400,
+                                                                ? Color.fromARGB(
+                                                                  255,
+                                                                  40,
+                                                                  60,
+                                                                  70,
+                                                                )
+                                                                : Color.fromARGB(
+                                                                  100,
+                                                                  40,
+                                                                  60,
+                                                                  70,
+                                                                ),
                                                         width:
                                                             isHour ? 1.2 : 0.5,
                                                       ),

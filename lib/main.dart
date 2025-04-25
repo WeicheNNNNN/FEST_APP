@@ -6,7 +6,7 @@ import 'list_festivals.dart';
 import 'organizer.dart';
 import 'custom_organizer.dart';
 import 'user_timetable.dart';
-import 'dart:ui'; // 為了 ImageFilter
+// 為了 ImageFilter
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -202,7 +202,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             child: Container(
               color: Colors.white,
               child: BottomNavigationBar(
-                backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+                backgroundColor: const Color.fromARGB(255, 40, 60, 70),
                 currentIndex: _currentIndex,
                 onTap: _onTabTapped,
                 type: BottomNavigationBarType.fixed,

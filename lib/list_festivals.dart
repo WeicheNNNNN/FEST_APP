@@ -106,11 +106,18 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
           style: TextStyle(
             color: Color.fromARGB(255, 231, 190, 123),
             fontWeight: FontWeight.bold, // 粗體
+            shadows: [
+              Shadow(
+                blurRadius: 5.0,
+                color: Color.fromARGB(255, 233, 152, 21), // 發光色
+                offset: Offset(0, 0),
+              ),
+            ],
           ), // ⭐ 字體顏色
         ),
 
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        backgroundColor: const Color.fromARGB(255, 40, 60, 70),
         iconTheme: const IconThemeData(
           color: Color.fromARGB(255, 231, 190, 123),
         ),
@@ -147,8 +154,8 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color.fromARGB(255, 30, 46, 56),
-                  Color.fromARGB(255, 30, 46, 56),
+                  Color.fromARGB(255, 60, 80, 90),
+                  Color.fromARGB(255, 60, 80, 90),
                 ],
               ),
             ),
@@ -432,7 +439,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withAlpha(200),
+            color: Colors.white.withAlpha(210),
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(

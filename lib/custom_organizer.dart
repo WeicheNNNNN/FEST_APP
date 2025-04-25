@@ -280,7 +280,7 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
           ), // ⭐ 字體顏色
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        backgroundColor: const Color.fromARGB(255, 40, 60, 70),
         iconTheme: const IconThemeData(
           color: Color.fromARGB(255, 231, 190, 123),
         ),
@@ -306,10 +306,21 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
                   itemCount: festivals.length,
                   itemBuilder: (context, index) {
                     final festival = festivals[index];
-                    return Card(
-                      margin: const EdgeInsets.all(12),
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(50),
+                            blurRadius: 6,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
                       child: ListTile(
-                        title: Text(festival['name'] ?? ''),
+                        title: Row(children: [Text(festival['name'] ?? '')]),
                         subtitle: Text(
                           '${festival['city']}｜${festival['start']} ~ ${festival['end']}',
                         ),

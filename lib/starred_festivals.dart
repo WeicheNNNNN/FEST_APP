@@ -62,7 +62,7 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
         ),
 
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        backgroundColor: const Color.fromARGB(255, 40, 60, 70),
         iconTheme: const IconThemeData(
           color: Color.fromARGB(255, 231, 190, 123),
         ),
@@ -88,8 +88,8 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color.fromARGB(255, 30, 46, 56),
-                    Color.fromARGB(255, 30, 46, 56),
+                    Color.fromARGB(255, 60, 80, 90),
+                    Color.fromARGB(255, 60, 80, 90),
                   ],
                 ),
               ),

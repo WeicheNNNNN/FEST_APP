@@ -334,7 +334,7 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
           ), // ⭐ 字體顏色
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 22, 38, 47),
+        backgroundColor: const Color.fromARGB(255, 40, 60, 70),
         iconTheme: const IconThemeData(
           color: Color.fromARGB(255, 231, 190, 123),
         ),
@@ -360,8 +360,19 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                   itemCount: festivals.length,
                   itemBuilder: (context, index) {
                     final festival = festivals[index];
-                    return Card(
-                      margin: const EdgeInsets.all(12),
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(50),
+                            blurRadius: 6,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
                       child: ListTile(
                         title: Row(children: [Text(festival['name'])]),
 
@@ -887,22 +898,33 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
         length: tabLabels.length,
         child: Scaffold(
           appBar: AppBar(
-            title: Text('${widget.festival['name']} 管理'),
+            title: Text(
+              '${widget.festival['name']} 管理',
+              style: TextStyle(
+                color: const Color.fromARGB(255, 231, 190, 123),
+              ), // ⭐ 字體顏色
+            ),
             centerTitle: true,
-            backgroundColor: Color.fromARGB(180, 30, 65, 96),
+            backgroundColor: Color.fromARGB(255, 40, 60, 70),
+            iconTheme: const IconThemeData(
+              color: Color.fromARGB(255, 231, 190, 123),
+            ),
             bottom: TabBar(
-              isScrollable: true,
+              isScrollable: false,
               labelPadding: const EdgeInsets.symmetric(horizontal: 30),
               labelStyle: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Color.fromARGB(255, 231, 190, 123),
               ),
               unselectedLabelStyle: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.normal,
-                color: Colors.white70,
+                color: Color.fromARGB(150, 231, 190, 123),
               ),
+              indicatorColor: Color.fromARGB(255, 231, 190, 123), // 線的顏色
+              indicatorWeight: 4.0, // 線的粗細
+              indicatorPadding: EdgeInsets.symmetric(horizontal: 10), // 左右內縮
               tabs: tabLabels.map((label) => Tab(text: label)).toList(),
             ),
           ),
