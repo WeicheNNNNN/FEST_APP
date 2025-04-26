@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'supabase_service.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'user_timetable.dart';
 
 class FestivalListScreen extends StatefulWidget {
@@ -29,6 +29,19 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
     _loadFavorites(); // ⭐ 加這個
     _loadLastFestival();
     _loadFestivals();
+    _loadViewPreference();
+  }
+
+  Future<void> _loadViewPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isGridView = prefs.getBool('isGridView') ?? true;
+    });
+  }
+
+  Future<void> _saveViewPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isGridView', isGridView); // 存起來
   }
 
   Future<void> _loadFavorites() async {
@@ -129,10 +142,12 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
-            onPressed: () {
+            onPressed: () async {
               setState(() {
                 isGridView = !isGridView;
               });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isGridView', isGridView); // 切完順便存
             },
           ),
         ],
@@ -310,7 +325,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 image: DecorationImage(
                   image:
                       imageUrl.isNotEmpty
-                          ? NetworkImage(imageUrl)
+                          ? CachedNetworkImageProvider(imageUrl)
                           : const AssetImage('assets/default.jpg')
                               as ImageProvider,
                   fit: BoxFit.cover,
@@ -453,7 +468,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                   child: Image(
                     image:
                         imageUrl.isNotEmpty
-                            ? NetworkImage(imageUrl)
+                            ? CachedNetworkImageProvider(imageUrl)
                             : const AssetImage('assets/default.jpg')
                                 as ImageProvider,
                     width: 60,

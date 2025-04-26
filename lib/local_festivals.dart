@@ -18,6 +18,14 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
   void initState() {
     super.initState();
     _loadLocalFestivals();
+    _loadViewPreference();
+  }
+
+  Future<void> _loadViewPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isGridView = prefs.getBool('isGridView') ?? true;
+    });
   }
 
   Future<void> _loadLocalFestivals() async {
@@ -53,10 +61,12 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
-            onPressed: () {
+            onPressed: () async {
               setState(() {
                 isGridView = !isGridView;
               });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isGridView', isGridView); // 切完順便存
             },
           ),
         ],

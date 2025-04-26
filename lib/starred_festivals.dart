@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fest_app/supabase_service.dart';
 import 'package:fest_app/user_timetable.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class StarredFestivalsScreen extends StatefulWidget {
   const StarredFestivalsScreen({super.key});
@@ -19,6 +20,14 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
   void initState() {
     super.initState();
     _loadStarredFestivals();
+    _loadViewPreference();
+  }
+
+  Future<void> _loadViewPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isGridView = prefs.getBool('isGridView') ?? true;
+    });
   }
 
   Future<void> _loadStarredFestivals() async {
@@ -69,10 +78,12 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
         actions: [
           IconButton(
             icon: Icon(isGridView ? Icons.list : Icons.grid_view),
-            onPressed: () {
+            onPressed: () async {
               setState(() {
                 isGridView = !isGridView;
               });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isGridView', isGridView); // 切完順便存
             },
           ),
         ],
@@ -173,7 +184,7 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                 image: DecorationImage(
                   image:
                       imageUrl.isNotEmpty
-                          ? NetworkImage(imageUrl)
+                          ? CachedNetworkImageProvider(imageUrl)
                           : const AssetImage('assets/default.jpg')
                               as ImageProvider,
                   fit: BoxFit.cover,
@@ -303,7 +314,7 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
                   child: Image(
                     image:
                         imageUrl.isNotEmpty
-                            ? NetworkImage(imageUrl)
+                            ? CachedNetworkImageProvider(imageUrl)
                             : const AssetImage('assets/default.jpg')
                                 as ImageProvider,
                     width: 60,

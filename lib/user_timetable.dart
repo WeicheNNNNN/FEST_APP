@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
+import 'dart:async';
 
 class UserTimetableScreen extends StatefulWidget {
   final Map<String, dynamic> festival;
@@ -22,6 +23,8 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
   static const double timeWidth = 50;
   static const double stageWidth = 150;
 
+  Timer? _timer;
+  DateTime now = DateTime.now();
   late ScrollController timeAxisController; // 左邊時間軸專用
   late ScrollController contentVerticalController; // 右邊節目專用
   late ScrollController horizontalController; // 左右滾用
@@ -30,6 +33,7 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
 
   @override
   void dispose() {
+    _timer?.cancel(); // ⭐新增
     timeAxisController.dispose();
     contentVerticalController.dispose();
     horizontalController.dispose();
@@ -50,6 +54,13 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
           contentVerticalController.hasClients) {
         timeAxisController.jumpTo(contentVerticalController.offset);
       }
+    });
+
+    // ⭐新增：啟動 timer 每30秒更新時間
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+      setState(() {
+        now = DateTime.now();
+      });
     });
   }
 
@@ -108,6 +119,20 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
     return ((hour - 8) * 6 + (minute ~/ 10)).clamp(0, 84);
+  }
+
+  double _calculateNowOffset() {
+    final nowTime = now;
+    int hour = nowTime.hour;
+    int minute = nowTime.minute;
+
+    // 從08:00開始
+    int minutesFromStart = (hour - 8) * 60 + minute;
+
+    if (minutesFromStart < 0) return -1000; // 太早，畫在螢幕外
+    if (minutesFromStart > (14 * 60)) return -1000; // 超過22:00，畫在螢幕外
+
+    return minutesFromStart / 10 * (cellHeight); // 每10分鐘一格，每格cellHeight高
   }
 
   @override
@@ -174,14 +199,14 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
             labelStyle: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 231, 190, 123),
+              color: Color.fromARGB(255, 255, 255, 255),
             ),
             unselectedLabelStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
-              color: Color.fromARGB(150, 231, 190, 123),
+              color: Color.fromARGB(150, 255, 255, 255),
             ),
-            indicatorColor: Color.fromARGB(255, 231, 190, 123), // 線的顏色
+            indicatorColor: Color.fromARGB(255, 255, 255, 255), // 線的顏色
             indicatorWeight: 4.0, // 線的粗細
             indicatorPadding: EdgeInsets.symmetric(horizontal: 10), // 左右內縮
             tabs: tabInfo.map((d) => Tab(text: d['label'])).toList(),
@@ -313,6 +338,19 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                             ),
                                           ),
                                         ),
+                                        // ⭐新增現在時間紅線
+                                        Positioned(
+                                          left: 0,
+                                          top:
+                                              _calculateNowOffset() +
+                                              cellHeight * 0.5, // ⭐加半格，對齊背景線
+                                          child: Container(
+                                            width: stageWidth * stages.length,
+                                            height: 2,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+
                                         // 節目表格（Row包每個舞台）
                                         Row(
                                           crossAxisAlignment:
@@ -504,6 +542,18 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                 );
               }).toList(),
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => FestivalMapScreen(festival: widget.festival),
+              ),
+            );
+          },
+          backgroundColor: Color.fromARGB(255, 40, 60, 70),
+          child: const Icon(Icons.map, color: Colors.white),
+        ),
       ),
     );
   }
@@ -599,6 +649,42 @@ class _FestivalListDialogState extends State<FestivalListDialog> {
           child: const Text('取消'),
         ),
       ],
+    );
+  }
+}
+
+class FestivalMapScreen extends StatelessWidget {
+  final Map<String, dynamic> festival;
+
+  const FestivalMapScreen({super.key, required this.festival});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          '${festival['name']} 地圖',
+          style: const TextStyle(
+            color: Color.fromARGB(255, 231, 190, 123),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 40, 60, 70),
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 231, 190, 123),
+        ),
+      ),
+      body: const Center(
+        child: Text('這裡之後放地圖內容', style: TextStyle(fontSize: 20)),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context); // ⭐ 點一下就回到時間表
+        },
+        backgroundColor: const Color.fromARGB(255, 40, 60, 70),
+        child: const Icon(Icons.list, color: Colors.white), // 用 "時間表" 的感覺
+      ),
     );
   }
 }

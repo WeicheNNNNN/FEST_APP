@@ -341,7 +341,7 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(
-          bottom: 70.0,
+          bottom: 10.0,
           right: 20.0,
         ), // ⬅️ 避開 BottomNavigationBar
         child: FloatingActionButton(
@@ -929,7 +929,7 @@ class _FestivalManageScreenState extends State<FestivalManageScreen> {
             ),
           ),
           floatingActionButton: Padding(
-            padding: const EdgeInsets.only(bottom: 70.0, right: 20.0), // 避開底部欄
+            padding: const EdgeInsets.only(bottom: 10.0, right: 20.0), // 避開底部欄
             child: FloatingActionButton(
               backgroundColor: const Color.fromARGB(255, 255, 255, 255),
               child: const Icon(Icons.add),
