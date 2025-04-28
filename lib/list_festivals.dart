@@ -92,10 +92,32 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
   }
 
   Future<void> _refreshFestivals() async {
+    final prefs = await SharedPreferences.getInstance();
+    final starList = prefs.getStringList('favorite_festivals') ?? [];
+
     final cloudData = await SupabaseService().getFestivals();
+    final today = DateTime.now();
+
+    // 過濾出有效音樂祭
+    final validFestivals =
+        cloudData
+            .where(
+              (fest) =>
+                  DateTime.parse(fest['end']).isAfter(today) ||
+                  DateTime.parse(fest['end']).isAtSameMomentAs(today),
+            )
+            .toList();
+
+    // 取得有效的收藏名稱
+    final validStarNames = validFestivals.map((fest) => fest['name']).toSet();
+
+    // 過濾掉過期收藏並更新SharedPreferences
+    final filteredStarList = starList.where(validStarNames.contains).toList();
+    await prefs.setStringList('favorite_festivals', filteredStarList);
+
     if (mounted) {
       setState(() {
-        festivals = cloudData;
+        festivals = validFestivals;
         festivals.sort((a, b) => a['start'].compareTo(b['start']));
       });
     }
