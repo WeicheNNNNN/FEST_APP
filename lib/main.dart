@@ -6,7 +6,7 @@ import 'list_festivals.dart';
 import 'custom_organizer.dart';
 import 'user_timetable.dart';
 import 'settings_screen.dart';
-// 為了 ImageFilter
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -107,6 +107,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   void _onTabTapped(int index) async {
+    HapticFeedback.lightImpact();
     setState(() => _currentIndex = index);
     _pageController.animateToPage(
       index,

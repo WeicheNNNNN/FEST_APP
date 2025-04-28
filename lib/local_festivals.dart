@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user_timetable.dart';
+import 'package:flutter/services.dart';
 
 class LocalFestivalsScreen extends StatefulWidget {
   const LocalFestivalsScreen({super.key});
@@ -147,6 +148,8 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
         children: [
           GestureDetector(
             onTap: () async {
+              HapticFeedback.lightImpact();
+
               final prefs = await SharedPreferences.getInstance();
               prefs.setString('lastFestival', jsonEncode(fest));
               Navigator.push(
@@ -250,6 +253,7 @@ class _LocalFestivalsScreenState extends State<LocalFestivalsScreen> {
       // --- 清單模式 ---
       return GestureDetector(
         onTap: () async {
+          HapticFeedback.lightImpact();
           final prefs = await SharedPreferences.getInstance();
           prefs.setString('lastFestival', jsonEncode(fest));
           Navigator.push(

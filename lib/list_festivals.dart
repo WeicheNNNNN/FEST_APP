@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'supabase_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'user_timetable.dart';
+import 'package:flutter/services.dart';
 
 class FestivalListScreen extends StatefulWidget {
   const FestivalListScreen({super.key});
@@ -316,6 +317,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
         children: [
           GestureDetector(
             onTap: () async {
+              HapticFeedback.lightImpact();
               final prefs = await SharedPreferences.getInstance();
               prefs.setString('lastFestival', jsonEncode(fest));
               if (!context.mounted) return;
@@ -398,6 +400,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent, // 讓整個容器都能點擊
               onTap: () {
+                HapticFeedback.lightImpact();
                 setState(() {
                   if (isStarred) {
                     favoriteFestivals.remove(festName);
@@ -444,6 +447,7 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
       // --- 清單模式 ---
       return GestureDetector(
         onTap: () async {
+          HapticFeedback.lightImpact();
           final prefs = await SharedPreferences.getInstance();
           prefs.setString('lastFestival', jsonEncode(fest));
           Navigator.push(
