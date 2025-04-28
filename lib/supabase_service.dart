@@ -18,6 +18,21 @@ class SupabaseService {
     return response['value'] as String?;
   }
 
+  Future<String?> getOrganizerDeletePassword() async {
+    final response =
+        await client
+            .from('password')
+            .select('value')
+            .eq('key', 'organizer_deletepassword')
+            .maybeSingle();
+
+    if (response == null) {
+      return null;
+    }
+
+    return response['value'] as String?;
+  }
+
   Future<List<Map<String, dynamic>>> getFestivals() async {
     final response = await client
         .from('festivals')

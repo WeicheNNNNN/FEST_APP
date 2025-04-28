@@ -994,6 +994,114 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                             IconButton(
                               icon: const Icon(Icons.delete),
                               onPressed: () async {
+                                final TextEditingController
+                                _passwordController = TextEditingController();
+                                String? errorText;
+
+                                final passwordConfirmed = await showDialog<
+                                  bool
+                                >(
+                                  context: context,
+                                  builder: (_) {
+                                    return StatefulBuilder(
+                                      builder:
+                                          (
+                                            context,
+                                            setStateDialog,
+                                          ) => AlertDialog(
+                                            title: const Text('請輸入刪除密碼'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextField(
+                                                  controller:
+                                                      _passwordController,
+                                                  obscureText: true,
+                                                  decoration: InputDecoration(
+                                                    hintText: '輸入密碼',
+                                                    errorText: errorText,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      context,
+                                                      false,
+                                                    ),
+                                                child: const Text('取消'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () async {
+                                                  final inputPassword =
+                                                      _passwordController.text
+                                                          .trim();
+                                                  final realPassword =
+                                                      await SupabaseService()
+                                                          .getOrganizerDeletePassword();
+
+                                                  if (realPassword == null) {
+                                                    if (context.mounted) {
+                                                      Navigator.pop(
+                                                        context,
+                                                        false,
+                                                      );
+                                                      showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (_) => AlertDialog(
+                                                              title: const Text(
+                                                                '錯誤',
+                                                              ),
+                                                              content: const Text(
+                                                                '無法讀取刪除密碼，請稍後再試。',
+                                                              ),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () => Navigator.pop(
+                                                                        context,
+                                                                      ),
+                                                                  child:
+                                                                      const Text(
+                                                                        '確定',
+                                                                      ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                      );
+                                                    }
+                                                    return;
+                                                  }
+
+                                                  if (inputPassword ==
+                                                      realPassword) {
+                                                    Navigator.pop(
+                                                      context,
+                                                      true,
+                                                    );
+                                                  } else {
+                                                    setStateDialog(() {
+                                                      _passwordController
+                                                          .clear();
+                                                      errorText = '密碼錯誤，請重新輸入';
+                                                    });
+                                                  }
+                                                },
+                                                child: const Text('確認'),
+                                              ),
+                                            ],
+                                          ),
+                                    );
+                                  },
+                                );
+
+                                if (passwordConfirmed != true) {
+                                  return;
+                                }
+
                                 final confirmed = await showDialog<bool>(
                                   context: context,
                                   builder:
@@ -1024,9 +1132,8 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                 );
 
                                 if (confirmed == true) {
-                                  final festivalToDelete =
-                                      festivals[index]; // 🔥 先存起來要刪的音樂祭資料
-                                  // 🔥 🔥 這裡插入刪Storage圖片的程式碼
+                                  final festivalToDelete = festivals[index];
+
                                   try {
                                     final imageUrl = festivalToDelete['image'];
                                     if (imageUrl != null &&
@@ -1049,12 +1156,11 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                   } catch (e) {
                                     print('刪除Storage圖片失敗：$e');
                                   }
-                                  // 🔥 先刪資料庫
+
                                   await SupabaseService().deleteFestival(
                                     festivalToDelete['id'],
                                   );
 
-                                  // 🔥 再更新畫面
                                   setState(() {
                                     festivals.removeAt(index);
                                   });
