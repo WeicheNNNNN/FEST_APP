@@ -5,6 +5,9 @@ import 'supabase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:crop_your_image/crop_your_image.dart';
+import 'dart:typed_data';
+import 'package:image/image.dart' as img;
 
 class OrganizerHomeScreen extends StatefulWidget {
   const OrganizerHomeScreen({super.key});
@@ -14,9 +17,20 @@ class OrganizerHomeScreen extends StatefulWidget {
 }
 
 class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
+  XFile? pickedImage;
+  XFile? pickedMap;
+  Uint8List? _pickedMapData;
+  String? pickedMapName;
+  XFile? pickedMapForEdit;
+
+  final CropController _cropController = CropController();
+  Uint8List? _croppedData;
+  String? croppedImageName;
+
   Future<void> _refreshFestivals() async {
     final loaded = await SupabaseService().getFestivals();
     final uniqueFestivals = <String, Map<String, dynamic>>{};
+
     for (var fest in loaded) {
       final key = '${fest['name']}_${fest['start']}_${fest['end']}';
       uniqueFestivals[key] = fest;
@@ -29,20 +43,34 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
   }
 
   List<Map<String, dynamic>> festivals = [];
-  Future<String> uploadImageToSupabase(XFile pickedImage) async {
-    final bytes = await pickedImage.readAsBytes();
+  Future<String> uploadCompressedImageToSupabase(XFile pickedImage) async {
+    final bytes = await pickedImage.readAsBytes(); // 讀取原始圖片
 
-    // ✅ 使用 UUID 產生安全純英文檔名
+    // 壓縮圖片
+    final originalImage = img.decodeImage(bytes);
+    if (originalImage == null) throw Exception('無法解碼圖片');
+
+    // 重新編碼成 JPG 並降低品質（80%）
+    final compressedBytes = Uint8List.fromList(
+      img.encodeJpg(
+        originalImage,
+        quality: 80, // ⭐ 調整這裡的壓縮比例，70～90之間都很常見
+      ),
+    );
+
+    // 上傳到 Supabase
     final uuid = const Uuid().v4();
-    final extension = pickedImage.name.split('.').last; // 保留原本副檔名（例如 png, jpg）
-    final safeFileName = 'festival_images/$uuid.$extension';
+    final safeFileName = 'festival_images/$uuid.jpg'; // 統一轉成 jpg
 
     await Supabase.instance.client.storage
-        .from('festapp') // ← 這邊是你bucket名字，沒問題
+        .from('festapp')
         .uploadBinary(
           safeFileName,
-          bytes,
-          fileOptions: const FileOptions(upsert: true),
+          compressedBytes,
+          fileOptions: const FileOptions(
+            upsert: true,
+            contentType: 'image/jpeg',
+          ),
         );
 
     final publicUrl = Supabase.instance.client.storage
@@ -66,22 +94,9 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
 
       setState(() {
         festivals = uniqueFestivals.values.toList();
-        festivals.sort((a, b) => a['start'].compareTo(b['start']));
+        festivals.sort((a, b) => b['start'].compareTo(a['start']));
       });
     });
-  }
-
-  void _addFestival(Map<String, dynamic> festival) async {
-    final updatedFestivals = [...festivals];
-    updatedFestivals.add(festival);
-    updatedFestivals.sort((a, b) => a['start'].compareTo(b['start']));
-
-    setState(() {
-      festivals = updatedFestivals;
-    });
-
-    // ✅ 只新增一筆到 Supabase
-    await SupabaseService().addFestival(festival);
   }
 
   void _openFestivalDetail(int index) async {
@@ -120,14 +135,67 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
     }
   }
 
+  void _onImageSelected(
+    Uint8List imageData,
+    XFile pickedImage,
+    StateSetter setStateDialog,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            '裁切封面圖片', // 🔥 這裡加標題！
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          content: SizedBox(
+            width: 300,
+            height: 400,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Crop(
+                    controller: _cropController,
+                    image: imageData,
+                    aspectRatio: 1, // ⭐ 正方形
+                    onCropped: (croppedData) {
+                      setState(() {
+                        _croppedData = croppedData;
+                        croppedImageName = '(已裁切封面) ${pickedImage.name}';
+                      });
+
+                      setStateDialog(() {}); // 🔥 同時刷新 Dialog
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    _cropController.crop(); // ⭐ 按下去裁切
+                  },
+                  child: const Text('完成'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _showAddFestivalDialog() async {
+    late StateSetter setStateDialog; // 🔥 記得加這個
+    bool isLoading = false;
+
     String name = '';
     DateTime? startDate;
     DateTime? endDate;
     String city = '';
     bool isPaid = false;
 
-    XFile? pickedImage;
+    String? mapUrl;
+
     final picker = ImagePicker();
 
     await showDialog(
@@ -135,6 +203,7 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setState) {
+            setStateDialog = setState;
             return AlertDialog(
               title: const Text('新增音樂祭'),
               content: SingleChildScrollView(
@@ -245,20 +314,58 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                     ),
 
                     const SizedBox(height: 10),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.photo),
-                      label: const Text('選擇圖片'),
-                      onPressed: () async {
-                        final picked = await picker.pickImage(
-                          source: ImageSource.gallery,
-                          imageQuality: 80,
-                        );
-                        if (picked != null) {
-                          setState(() => pickedImage = picked);
-                        }
-                      },
+                    Row(
+                      children: [
+                        const Text('新增封面：'),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.photo),
+                          label: const Text('選擇圖片'),
+                          onPressed: () async {
+                            final picked = await picker.pickImage(
+                              source: ImageSource.gallery,
+                              imageQuality: 80,
+                            );
+                            if (picked != null) {
+                              final bytes = await picked.readAsBytes();
+                              pickedImage = picked;
+                              _onImageSelected(bytes, picked, setState);
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                    if (pickedImage != null) Text('已選圖片：${pickedImage!.name}'),
+
+                    if (croppedImageName != null)
+                      Text('已選圖片：$croppedImageName')
+                    else if (pickedImage != null)
+                      Text('已選圖片：${pickedImage!.name}'),
+
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Text('新增地圖：'),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.map),
+                          label: const Text('選擇圖片'),
+                          onPressed: () async {
+                            final picked = await picker.pickImage(
+                              source: ImageSource.gallery,
+                              imageQuality: 80,
+                            );
+                            if (picked != null) {
+                              final bytes = await picked.readAsBytes();
+                              pickedMap = picked;
+                              _pickedMapData = bytes;
+                              pickedMapName = picked.name;
+                              setStateDialog(() {}); // 這行刷新 Dialog 顯示
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    if (pickedMapName != null) Text('已選地圖：$pickedMapName'),
                   ],
                 ),
               ),
@@ -268,51 +375,169 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                   child: const Text('取消'),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    if (name.isNotEmpty &&
-                        startDate != null &&
-                        endDate != null) {
-                      String? imageUrl;
-                      try {
-                        if (pickedImage != null) {
-                          imageUrl = await uploadImageToSupabase(pickedImage!);
-                        }
+                  onPressed:
+                      isLoading
+                          ? null
+                          : () async {
+                            setStateDialog(() {
+                              isLoading = true; // 🔥開始進入loading
+                            });
 
-                        _addFestival({
-                          'name': name,
-                          'start':
-                              '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
-                          'end':
-                              '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}',
-                          'stages': [],
-                          if (imageUrl != null) 'image': imageUrl,
-                          'city': city,
-                          'isPaid': isPaid,
-                        });
+                            try {
+                              if (name.isNotEmpty &&
+                                  startDate != null &&
+                                  endDate != null) {
+                                try {
+                                  Uint8List? imageDataForUpload;
 
-                        Navigator.pop(context);
-                      } catch (e) {
-                        // 如果上傳出錯，顯示錯誤訊息
-                        if (context.mounted) {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => AlertDialog(
-                                  title: const Text('錯誤'),
-                                  content: Text('上傳圖片失敗：$e'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('確定'),
-                                    ),
-                                  ],
-                                ),
-                          );
-                        }
-                      }
-                    }
-                  },
-                  child: const Text('新增'),
+                                  if (_croppedData != null &&
+                                      _croppedData!.isNotEmpty) {
+                                    imageDataForUpload = _croppedData;
+                                  } else if (pickedImage != null) {
+                                    final bytes =
+                                        await pickedImage!.readAsBytes();
+                                    if (bytes.isNotEmpty) {
+                                      imageDataForUpload = bytes;
+                                    }
+                                  }
+
+                                  String? imageUrl;
+                                  if (imageDataForUpload != null) {
+                                    // 🔥 這裡補壓縮
+                                    final originalImage = img.decodeImage(
+                                      imageDataForUpload,
+                                    );
+                                    if (originalImage == null) {
+                                      throw Exception('無法解碼圖片');
+                                    }
+                                    final compressedBytes = Uint8List.fromList(
+                                      img.encodeJpg(originalImage, quality: 80),
+                                    );
+
+                                    final uuid = const Uuid().v4();
+                                    final safeFileName =
+                                        'festival_images/$uuid.jpg';
+
+                                    await Supabase.instance.client.storage
+                                        .from('festapp')
+                                        .uploadBinary(
+                                          safeFileName,
+                                          compressedBytes,
+                                          fileOptions: const FileOptions(
+                                            upsert: true,
+                                            contentType: 'image/jpeg',
+                                          ),
+                                        );
+
+                                    imageUrl = Supabase.instance.client.storage
+                                        .from('festapp')
+                                        .getPublicUrl(safeFileName);
+                                  }
+
+                                  // 🔥 地圖圖片一樣補壓縮
+                                  if (_pickedMapData != null &&
+                                      _pickedMapData!.isNotEmpty) {
+                                    final originalMapImage = img.decodeImage(
+                                      _pickedMapData!,
+                                    );
+                                    if (originalMapImage == null) {
+                                      throw Exception('無法解碼地圖圖片');
+                                    }
+                                    final compressedMapBytes =
+                                        Uint8List.fromList(
+                                          img.encodeJpg(
+                                            originalMapImage,
+                                            quality: 80,
+                                          ),
+                                        );
+
+                                    final uuid = const Uuid().v4();
+                                    final safeFileName =
+                                        'festival_maps/$uuid.jpg';
+
+                                    await Supabase.instance.client.storage
+                                        .from('festapp')
+                                        .uploadBinary(
+                                          safeFileName,
+                                          compressedMapBytes,
+                                          fileOptions: const FileOptions(
+                                            upsert: true,
+                                            contentType: 'image/jpeg',
+                                          ),
+                                        );
+
+                                    mapUrl = Supabase.instance.client.storage
+                                        .from('festapp')
+                                        .getPublicUrl(safeFileName);
+                                  }
+
+                                  await SupabaseService().addFestival({
+                                    'name': name,
+                                    'start':
+                                        '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
+                                    'end':
+                                        '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}',
+                                    'city': city,
+                                    'isPaid': isPaid,
+                                    'stages': [],
+                                    'image': imageUrl ?? '',
+                                    'map': mapUrl ?? '',
+                                  });
+                                  await _refreshFestivals();
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('新增成功！'),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+
+                                  _croppedData = null;
+                                  pickedImage = null;
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => AlertDialog(
+                                            title: const Text('錯誤'),
+                                            content: Text('新增失敗：$e'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () =>
+                                                        Navigator.pop(context),
+                                                child: const Text('確定'),
+                                              ),
+                                            ],
+                                          ),
+                                    );
+                                  }
+                                }
+                              }
+                            } finally {
+                              if (mounted) {
+                                setStateDialog(() {
+                                  isLoading = false; // 🔥完成或失敗都結束loading
+                                });
+                              }
+                            }
+                          },
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : const Text('新增'),
                 ),
               ],
             );
@@ -387,6 +612,10 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                               icon: const Icon(Icons.edit),
                               onPressed: () async {
                                 final current = festivals[index];
+
+                                Uint8List? pickedMapDataForEdit;
+                                String? pickedMapNameForEdit;
+
                                 String name = current['name'] ?? '';
                                 String city = current['city'] ?? '';
                                 bool isPaid = current['isPaid'] ?? false;
@@ -396,7 +625,7 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                 DateTime? endDate = DateTime.tryParse(
                                   current['end'] ?? '',
                                 );
-                                XFile? pickedImage;
+
                                 final picker = ImagePicker();
 
                                 await showDialog(
@@ -560,31 +789,90 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                                         ),
                                                       ],
                                                     ),
-                                                    ElevatedButton.icon(
-                                                      icon: const Icon(
-                                                        Icons.photo,
-                                                      ),
-                                                      label: const Text('更換圖片'),
-                                                      onPressed: () async {
-                                                        final picked = await picker
-                                                            .pickImage(
-                                                              source:
-                                                                  ImageSource
-                                                                      .gallery,
-                                                              imageQuality: 80,
-                                                            );
-                                                        if (picked != null) {
-                                                          setState(
-                                                            () =>
+                                                    Row(
+                                                      children: [
+                                                        const Text('新增封面:'),
+                                                        const SizedBox(
+                                                          width: 12,
+                                                        ),
+                                                        ElevatedButton.icon(
+                                                          icon: const Icon(
+                                                            Icons.photo,
+                                                          ),
+                                                          label: const Text(
+                                                            '更換圖片',
+                                                          ),
+                                                          onPressed: () async {
+                                                            final picked = await picker
+                                                                .pickImage(
+                                                                  source:
+                                                                      ImageSource
+                                                                          .gallery,
+                                                                  imageQuality:
+                                                                      80,
+                                                                );
+                                                            if (picked !=
+                                                                null) {
+                                                              setState(() {
                                                                 pickedImage =
-                                                                    picked,
-                                                          );
-                                                        }
-                                                      },
+                                                                    picked;
+                                                              });
+                                                            }
+                                                          },
+                                                        ),
+                                                      ],
                                                     ),
+
                                                     if (pickedImage != null)
                                                       Text(
                                                         '已選圖片：${pickedImage!.name}',
+                                                      ),
+
+                                                    const SizedBox(height: 10),
+                                                    Row(
+                                                      children: [
+                                                        const Text('更換地圖:'),
+                                                        const SizedBox(
+                                                          width: 12,
+                                                        ),
+                                                        ElevatedButton.icon(
+                                                          icon: const Icon(
+                                                            Icons.map,
+                                                          ),
+                                                          label: const Text(
+                                                            '選擇圖片',
+                                                          ),
+                                                          onPressed: () async {
+                                                            final picked = await picker
+                                                                .pickImage(
+                                                                  source:
+                                                                      ImageSource
+                                                                          .gallery,
+                                                                  imageQuality:
+                                                                      80,
+                                                                );
+                                                            if (picked !=
+                                                                null) {
+                                                              final bytes =
+                                                                  await picked
+                                                                      .readAsBytes();
+                                                              pickedMapForEdit =
+                                                                  picked;
+                                                              pickedMapDataForEdit =
+                                                                  bytes;
+                                                              pickedMapNameForEdit =
+                                                                  picked.name;
+                                                              setState(() {});
+                                                            }
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+
+                                                    if (pickedMapNameForEdit !=
+                                                        null)
+                                                      Text(
+                                                        '已選地圖：$pickedMapNameForEdit',
                                                       ),
                                                   ],
                                                 ),
@@ -597,14 +885,56 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                                       ),
                                                   child: const Text('取消'),
                                                 ),
+
                                                 ElevatedButton(
                                                   onPressed: () async {
                                                     String? imageUrl =
                                                         current['image'];
+                                                    String? mapUrl =
+                                                        current['map'];
                                                     if (pickedImage != null) {
-                                                      imageUrl =
-                                                          await uploadImageToSupabase(
-                                                            pickedImage!,
+                                                      final bytes =
+                                                          await pickedImage!
+                                                              .readAsBytes();
+                                                      if (bytes.isNotEmpty) {
+                                                        imageUrl =
+                                                            await uploadCompressedImageToSupabase(
+                                                              pickedImage!,
+                                                            );
+                                                      }
+                                                    }
+                                                    if (pickedMapDataForEdit !=
+                                                            null &&
+                                                        pickedMapDataForEdit!
+                                                            .isNotEmpty) {
+                                                      final uuid =
+                                                          const Uuid().v4();
+                                                      final safeFileName =
+                                                          'festival_maps/$uuid.jpg';
+
+                                                      await Supabase
+                                                          .instance
+                                                          .client
+                                                          .storage
+                                                          .from('festapp')
+                                                          .uploadBinary(
+                                                            safeFileName,
+                                                            pickedMapDataForEdit!,
+                                                            fileOptions:
+                                                                const FileOptions(
+                                                                  upsert: true,
+                                                                  contentType:
+                                                                      'image/jpeg',
+                                                                ),
+                                                          );
+
+                                                      mapUrl = Supabase
+                                                          .instance
+                                                          .client
+                                                          .storage
+                                                          .from('festapp')
+                                                          .getPublicUrl(
+                                                            safeFileName,
                                                           );
                                                     }
 
@@ -619,7 +949,9 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                                       'isPaid': isPaid,
                                                       'image': imageUrl,
                                                       'stages':
-                                                          current['stages'], // 不變
+                                                          current['stages'],
+                                                      if (mapUrl != null)
+                                                        'map': mapUrl,
                                                     };
 
                                                     setState(
@@ -633,6 +965,21 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                                           updated,
                                                         );
                                                     await _refreshFestivals();
+                                                    if (context.mounted) {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            '儲存成功！',
+                                                          ),
+                                                          duration: Duration(
+                                                            seconds: 2,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+
                                                     Navigator.pop(context);
                                                   },
                                                   child: const Text('儲存'),
@@ -679,7 +1026,29 @@ class _OrganizerHomeScreenState extends State<OrganizerHomeScreen> {
                                 if (confirmed == true) {
                                   final festivalToDelete =
                                       festivals[index]; // 🔥 先存起來要刪的音樂祭資料
+                                  // 🔥 🔥 這裡插入刪Storage圖片的程式碼
+                                  try {
+                                    final imageUrl = festivalToDelete['image'];
+                                    if (imageUrl != null &&
+                                        imageUrl.isNotEmpty) {
+                                      final path =
+                                          Uri.parse(imageUrl).pathSegments.last;
+                                      await Supabase.instance.client.storage
+                                          .from('festapp')
+                                          .remove([path]);
+                                    }
 
+                                    final mapUrl = festivalToDelete['map'];
+                                    if (mapUrl != null && mapUrl.isNotEmpty) {
+                                      final path =
+                                          Uri.parse(mapUrl).pathSegments.last;
+                                      await Supabase.instance.client.storage
+                                          .from('festapp')
+                                          .remove([path]);
+                                    }
+                                  } catch (e) {
+                                    print('刪除Storage圖片失敗：$e');
+                                  }
                                   // 🔥 先刪資料庫
                                   await SupabaseService().deleteFestival(
                                     festivalToDelete['id'],

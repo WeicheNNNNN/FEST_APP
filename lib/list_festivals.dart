@@ -39,11 +39,6 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
     });
   }
 
-  Future<void> _saveViewPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isGridView', isGridView); // 存起來
-  }
-
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     final favList = prefs.getStringList('favorite_festivals') ?? [];
@@ -78,9 +73,18 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
 
   Future<void> _loadFestivals() async {
     final cloudData = await SupabaseService().getFestivals();
+    final today = DateTime.now();
+
     if (mounted) {
       setState(() {
-        festivals = cloudData;
+        festivals =
+            cloudData
+                .where(
+                  (fest) =>
+                      DateTime.parse(fest['end']).isAfter(today) ||
+                      DateTime.parse(fest['end']).isAtSameMomentAs(today),
+                )
+                .toList();
         festivals.sort((a, b) => a['start'].compareTo(b['start']));
       });
     }
@@ -172,6 +176,74 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
           // 前景內容
           Column(
             children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (child, animation) {
+                  final offsetAnimation = Tween<Offset>(
+                    begin: const Offset(0, -1), // 🔥 從上方-1開始
+                    end: Offset.zero, // 🔥 移動到原位(0)
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic, // 🔥 可以用很自然的下滑曲線
+                    ),
+                  );
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: FadeTransition(
+                      opacity: animation, // 可以同時有淡入感覺
+                      child: child,
+                    ),
+                  );
+                },
+                child:
+                    showSearchBar
+                        ? Padding(
+                          key: const ValueKey('searchBar'),
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                          child: TextField(
+                            controller: searchController,
+                            decoration: InputDecoration(
+                              hintText: '搜尋音樂祭名稱或地點',
+                              hintStyle: const TextStyle(color: Colors.grey),
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: Colors.grey,
+                              ),
+                              suffixIcon:
+                                  query.isNotEmpty
+                                      ? IconButton(
+                                        icon: const Icon(
+                                          Icons.clear,
+                                          color: Colors.grey,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            query = '';
+                                            searchController.clear();
+                                          });
+                                        },
+                                      )
+                                      : null,
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            style: const TextStyle(color: Colors.black),
+                            onChanged: (value) {
+                              setState(() {
+                                query = value;
+                              });
+                            },
+                          ),
+                        )
+                        : const SizedBox.shrink(key: ValueKey('empty')),
+              ),
+
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _refreshFestivals,
@@ -226,67 +298,6 @@ class _FestivalListScreenState extends State<FestivalListScreen> {
                 ),
               ),
             ],
-          ),
-
-          // === 搜尋欄動畫區塊 ===
-          Positioned(
-            top: 12,
-            left: 12,
-            right: 12,
-            child: AnimatedScale(
-              scale: showSearchBar ? 1.0 : 0.8,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutBack,
-              child: AnimatedOpacity(
-                opacity: showSearchBar ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 200),
-                child: IgnorePointer(
-                  ignoring: !showSearchBar,
-                  child: Material(
-                    elevation: 6,
-                    borderRadius: BorderRadius.circular(12),
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                        hintText: '搜尋音樂祭名稱或地點',
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Colors.grey,
-                        ),
-                        suffixIcon:
-                            query.isNotEmpty
-                                ? IconButton(
-                                  icon: const Icon(
-                                    Icons.clear,
-                                    color: Colors.grey,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      query = '';
-                                      searchController.clear();
-                                    });
-                                  },
-                                )
-                                : null,
-                        filled: true,
-                        fillColor: Colors.white, // ✅ 實心白底
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.black), // 使用者輸入文字顏色
-                      onChanged: (value) {
-                        setState(() {
-                          query = value;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ),
         ],
       ),

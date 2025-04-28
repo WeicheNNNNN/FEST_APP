@@ -34,11 +34,31 @@ class _StarredFestivalsScreenState extends State<StarredFestivalsScreen> {
     final prefs = await SharedPreferences.getInstance();
     final starList = prefs.getStringList('favorite_festivals') ?? [];
     final allFestivals = await SupabaseService().getFestivals();
+    final today = DateTime.now();
+
+    // 過濾掉已結束的音樂祭名稱
+    final validFestivals =
+        allFestivals
+            .where(
+              (fest) =>
+                  DateTime.parse(fest['end']).isAfter(today) ||
+                  DateTime.parse(fest['end']).isAtSameMomentAs(today),
+            )
+            .toList();
+
+    final validStarNames = validFestivals.map((fest) => fest['name']).toSet();
+
+    // 過濾掉過期收藏
+    final filteredStarList = starList.where(validStarNames.contains).toList();
+
+    // ⭐更新SharedPreferences，移除過期收藏
+    await prefs.setStringList('favorite_festivals', filteredStarList);
+
     if (!mounted) return;
     setState(() {
       starredFestivals =
-          allFestivals
-              .where((fest) => starList.contains(fest['name']))
+          validFestivals
+              .where((fest) => filteredStarList.contains(fest['name']))
               .toList();
     });
   }

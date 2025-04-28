@@ -227,25 +227,69 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                           physics: const NeverScrollableScrollPhysics(),
                           child: Padding(
                             padding: EdgeInsets.only(top: cellHeight * 1.5),
-                            child: Column(
+                            child: Stack(
                               children: [
-                                ...List.generate(
-                                  timeSlots.length,
-                                  (i) => Container(
-                                    width: timeWidth,
-                                    height: cellHeight,
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.only(right: 8),
+                                // ⭐額外補一個空白半格
+                                Column(
+                                  children: [
+                                    ...List.generate(
+                                      timeSlots.length,
+                                      (i) => Container(
+                                        width: timeWidth,
+                                        height: cellHeight,
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.only(
+                                          right: 8,
+                                        ),
+                                        child: Text(
+                                          timeSlots[i],
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Color.fromARGB(
+                                              255,
+                                              40,
+                                              60,
+                                              70,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: cellHeight * 4), // 額外空白
+                                  ],
+                                ),
+
+                                // ⭐新增一個小紅色現在時間字
+                                Positioned(
+                                  right: 2,
+                                  top:
+                                      _calculateNowOffset() +
+                                      cellHeight * 0.5 -
+                                      9, // ⭐跟右邊紅線對齊
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.red,
+                                        width: 1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
                                     child: Text(
-                                      timeSlots[i],
+                                      '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}',
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: Color.fromARGB(255, 40, 60, 70),
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
                                 ),
-                                // ⭐額外補一個空白半格
+
                                 SizedBox(
                                   width: timeWidth,
                                   height: cellHeight * 4,
@@ -346,7 +390,7 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
                                               cellHeight * 0.5, // ⭐加半格，對齊背景線
                                           child: Container(
                                             width: stageWidth * stages.length,
-                                            height: 2,
+                                            height: 3,
                                             color: Colors.red,
                                           ),
                                         ),
@@ -658,6 +702,35 @@ class FestivalMapScreen extends StatelessWidget {
 
   const FestivalMapScreen({super.key, required this.festival});
 
+  Widget _buildMapContent() {
+    if (festival['map'] != null && festival['map'].toString().isNotEmpty) {
+      return InteractiveViewer(
+        minScale: 0.5,
+        maxScale: 4.0,
+        child: Container(
+          color: Color.fromARGB(255, 60, 80, 90),
+          width: double.infinity,
+          height: double.infinity,
+          child: Image.network(
+            festival['map'],
+            fit: BoxFit.contain,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.error);
+            },
+          ),
+        ),
+      );
+    } else {
+      return const Center(
+        child: Text('此音樂祭尚未上傳地圖', style: TextStyle(fontSize: 18)),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -675,15 +748,13 @@ class FestivalMapScreen extends StatelessWidget {
           color: Color.fromARGB(255, 231, 190, 123),
         ),
       ),
-      body: const Center(
-        child: Text('這裡之後放地圖內容', style: TextStyle(fontSize: 20)),
-      ),
+      body: _buildMapContent(), // ⭐這裡叫剛剛那個 function
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pop(context); // ⭐ 點一下就回到時間表
+          Navigator.pop(context);
         },
         backgroundColor: const Color.fromARGB(255, 40, 60, 70),
-        child: const Icon(Icons.list, color: Colors.white), // 用 "時間表" 的感覺
+        child: const Icon(Icons.list, color: Colors.white),
       ),
     );
   }

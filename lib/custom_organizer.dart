@@ -257,6 +257,15 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
                             'isPaid': isPaid,
                             'image': '',
                           });
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('新增成功！'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+
                           Navigator.pop(context);
                         }
                       },
@@ -544,7 +553,22 @@ class _CustomOrganizerScreenState extends State<CustomOrganizerScreen> {
                                                             isPaid, // ⭐補這個
                                                       });
                                                     }
+                                                    if (context.mounted) {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            '儲存成功！',
+                                                          ),
+                                                          duration: Duration(
+                                                            seconds: 2,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
                                                   },
+
                                                   child: const Text('儲存'),
                                                 ),
                                               ],
