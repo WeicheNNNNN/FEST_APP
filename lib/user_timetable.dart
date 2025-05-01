@@ -88,8 +88,8 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
 
   List<String> getTimeSlots() {
     final List<String> slots = [];
-    DateTime time = DateTime(2023, 1, 1, 8, 0);
-    while (time.hour < 22 || (time.hour == 22 && time.minute == 0)) {
+    DateTime time = DateTime(2023, 1, 1, 10, 0);
+    while (time.hour < 23 || (time.hour == 23 && time.minute <= 30)) {
       slots.add(
         '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
       );
@@ -118,7 +118,10 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
     final parts = time.split(":");
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
-    return ((hour - 8) * 6 + (minute ~/ 10)).clamp(0, 84);
+    return ((hour - 10) * 6 + (minute ~/ 10)).clamp(
+      0,
+      81,
+    ); // 81 = (23:30 - 10:00) / 10min
   }
 
   double _calculateNowOffset() {
@@ -126,13 +129,10 @@ class _UserTimetableScreenState extends State<UserTimetableScreen> {
     int hour = nowTime.hour;
     int minute = nowTime.minute;
 
-    // 從08:00開始
-    int minutesFromStart = (hour - 8) * 60 + minute;
+    int minutesFromStart = (hour - 10) * 60 + minute;
 
-    if (minutesFromStart < 0) return -1000; // 太早，畫在螢幕外
-    if (minutesFromStart > (14 * 60)) return -1000; // 超過22:00，畫在螢幕外
-
-    return minutesFromStart / 10 * (cellHeight); // 每10分鐘一格，每格cellHeight高
+    if (minutesFromStart < 0 || minutesFromStart > (13 * 60 + 30)) return -1000;
+    return minutesFromStart / 10 * cellHeight;
   }
 
   @override

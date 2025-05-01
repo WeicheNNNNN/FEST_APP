@@ -49,7 +49,7 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Future<void> _openOrganizer(BuildContext context) async {
-    final TextEditingController _passwordController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
     String? errorText; // 🔥 加一個錯誤訊息變數
 
     await showDialog(
@@ -63,7 +63,7 @@ class SettingsScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
-                      controller: _passwordController,
+                      controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: '輸入密碼',
@@ -79,7 +79,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final inputPassword = _passwordController.text.trim();
+                      final inputPassword = passwordController.text.trim();
 
                       final realPassword =
                           await SupabaseService().getOrganizerPassword();
@@ -118,7 +118,7 @@ class SettingsScreen extends StatelessWidget {
                       } else {
                         // 🔥 密碼錯誤時，清空輸入框，顯示紅字
                         setStateDialog(() {
-                          _passwordController.clear();
+                          passwordController.clear();
                           errorText = '密碼錯誤，請重新輸入';
                         });
                       }
